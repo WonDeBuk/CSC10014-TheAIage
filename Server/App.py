@@ -134,4 +134,5 @@ def AuthMe():
     }), 200
 
 if __name__ == "__main__":
-    App.run(host="0.0.0.0", debug=True, port=int(OS.environ.get("PORT", 8000)))
+    _Port = int(OS.environ.get("PORT", 5000))
+    App.run(host="0.0.0.0", debug=False, port=_Port)
