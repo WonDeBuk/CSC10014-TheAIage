@@ -41,7 +41,7 @@ def GetOrigin():
     if __Origin in AllowedOriginList:
         return __Origin
     return None
-CORS(App, supports_credentials=True, origins=GetOrigin())
+CORS(App, supports_credentials=True, origins=AllowedOriginList)
 
 
 #
