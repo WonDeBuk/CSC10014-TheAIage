@@ -32,14 +32,27 @@ export default function LoginPage() {
     }
 
     try {
+      localStorage.setItem("isAuthenticated", "true");
       const Respone = await AxiosInstance.post("/auth/login", {
         "Email": formData.email,
         "PlainPassword": formData.password,
+      },
+      { withCredentials: true,
+        validateStatus: (status) => status === 200 || status === 401
       });
 
-      navigate("/dashboard")
-    } catch (Error: any) {
+      if (Respone.status === 200) {
+        navigate("/");
+      }
 
+      else if (Respone.status === 401) {
+        setErrorMessage(Respone.data.Message || "Invalid email or password.");
+      }
+
+      setFormData({ email: "", password: "" });
+    } catch (Error: any) {
+      console.error(Error);
+      setErrorMessage("Please try again later.");
     }
   };
 
@@ -50,7 +63,7 @@ export default function LoginPage() {
         <p className="text-[18px] text-center text-[#a2abb7]">Access your counseling portal</p>
       </div>
 
-      <div className="flex flex-col items-start bg-[#fffeff] gap-8 p-5 rounded-lg min-w-2/7">
+      <div className="flex flex-col items-start bg-[#fffeff] gap-8 p-5 rounded-lg min-w-[400px] w-2/7">
         <div className="w-full">
           <div className="flex items-end justify-between">
             <p className="text-[22px] font-[500]">Sign in</p>

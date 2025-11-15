@@ -25,6 +25,8 @@ App.config["SESSION_MONGODB"] = Mongo_Client
 App.config["SESSION_MONGODB_DB"] = "Authentication"
 App.config["SESSION_MONGODB_COLLECT"] = "Sessions"
 App.config["SESSION_PERMANENT"] = True
+App.config["COOKIE_SAMESITE"] = "Lax"
+App.config["COOKIE_SECURE"] = False
 Session(App)
 
 
@@ -43,7 +45,7 @@ def AuthenticationRequired(FunctionPtr):
     @wraps(FunctionPtr)
     def AuthenticationFunction(*args, **kwargs):
         if "UserID" not in _Session:
-            return _JSonify({"Error": "Not Authenticated"}), 401
+            return _JSonify({"Message": "Not Authenticated"}), 401
         return FunctionPtr(*args, **kwargs)
     return AuthenticationFunction
 
@@ -55,11 +57,13 @@ def UnauthenticationRequired(FunctionPtr):
     # 2. Chưa có trong Sessions tiếp tục các bước Login
     def UnauthenticationFunction(*args, **kwargs):
         if "UserID" in _Session:
-            return _JSonify({"Error": "Already Logged In"}), 401
+            return _JSonify({"Message": "Already Logged In"}), 401
         return FunctionPtr(*args, **kwargs)
     return UnauthenticationFunction
 
-
+@App.get("/")
+def Home():
+    return _JSonify({"Message": "TheAIage Server is Running"}), 200
 
 @App.post("/auth/register")
 @UnauthenticationRequired
@@ -134,4 +138,4 @@ def AuthMe():
     }), 200
 
 if __name__ == "__main__":
-    App.run(debug=True, port= 8000)
+    App.run(host="localhost", debug=True, port= 8000)

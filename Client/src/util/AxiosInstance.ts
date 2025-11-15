@@ -1,7 +1,7 @@
 import Axios from 'axios';
 
 const AxiosInstance = Axios.create({
-    baseURL: import.meta.env.VITE_BACK_END,
+    baseURL: "http://localhost:8000",
     withCredentials: true
 })
 
