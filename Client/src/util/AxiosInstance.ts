@@ -1,7 +1,7 @@
 import Axios from 'axios';
 
 const AxiosInstance = Axios.create({
-    baseURL: "https://theaiage.railway.app",
+    baseURL: "https://theaiage.up.railway.app",
     withCredentials: true
 })
 
