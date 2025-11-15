@@ -32,7 +32,7 @@ Session(App)
 #   CORS Intialization
 #
 # Khởi tạo CORS hiểu đơn giản cái này là một giao thức bảo mật
-CORS(App, supports_credentials=True, origins=["http://localhost:5173"])
+CORS(App, supports_credentials=True, origins=["https://theaiage.vercel.app"])
 
 
 #
@@ -134,4 +134,4 @@ def AuthMe():
     }), 200
 
 if __name__ == "__main__":
-    App.run(debug=True, port= 8000)
+    App.run(host="0.0.0.0", debug=True, port=int(OS.environ.get("PORT", 8000)))

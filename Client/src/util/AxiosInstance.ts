@@ -1,7 +1,7 @@
 import Axios from 'axios';
 
 const AxiosInstance = Axios.create({
-    baseURL: import.meta.env.VITE_BACK_END,
+    baseURL: "https://theaiage.railway.app",
     withCredentials: true
 })
 
