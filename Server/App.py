@@ -41,7 +41,25 @@ def GetOrigin():
     if __Origin in AllowedOriginList:
         return __Origin
     return None
-CORS(App, supports_credentials=True, origins=AllowedOriginList)
+
+# Configure CORS with explicit settings
+CORS(App, 
+     supports_credentials=True, 
+     origins=AllowedOriginList,
+     allow_headers=["Content-Type", "Authorization"],
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+     expose_headers=["Content-Type"])
+
+# Additional CORS handler to ensure headers are set correctly
+@App.after_request
+def AfterRequest(Response):
+    Origin = _Request.headers.get("Origin")
+    if Origin and Origin in AllowedOriginList:
+        Response.headers["Access-Control-Allow-Origin"] = Origin
+        Response.headers["Access-Control-Allow-Credentials"] = "true"
+        Response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+        Response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+    return Response
 
 
 #
