@@ -9,7 +9,6 @@ lerna-debug.log*
 
 Client/node_modules
 Server/__pycache__
-dist
 dist-ssr
 *.local
 

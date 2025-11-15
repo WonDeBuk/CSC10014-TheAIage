@@ -25,16 +25,22 @@ App.config["SESSION_MONGODB"] = Mongo_Client
 App.config["SESSION_MONGODB_DB"] = "Authentication"
 App.config["SESSION_MONGODB_COLLECT"] = "Sessions"
 App.config["SESSION_PERMANENT"] = True
-App.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+App.config["SESSION_COOKIE_SAMESITE"] = "None"
+App.config["SESSION_COOKIE_SECURE"] = True
 App.config["SESSION_COOKIE_HTTPONLY"] = True
-Session(App)
 
+Session(App)
 
 #
 #   CORS Intialization
 #
 # Khởi tạo CORS hiểu đơn giản cái này là một giao thức bảo mật
-CORS(App, supports_credentials=True, origins=["http://localhost:5173","http://127.0.0.1:5173"])
+AllowedOriginList = [
+    "http://localhost:5173", # Dev Origin
+    "https://theaiage.vercel.app" # Production Origin
+]
+
+CORS(App, supports_credentials=True, origins=AllowedOriginList)
 
 
 #
@@ -136,4 +142,5 @@ def AuthMe():
     }), 200
 
 if __name__ == "__main__":
-    App.run(debug=True, port= 8000)
+    _Port = int(OS.environ.get("PORT", 5000))
+    App.run(host="0.0.0.0", debug=False, port=_Port)
