@@ -22,21 +22,35 @@ export function Features() {
   ];
 
   return (
-    <section id="features" className="py-20 px-6 bg-white">
+    <section id="features" className="py-20 px-6 bg-white sm:px-6 lg:py-24">
       <div className="mx-auto w-full max-w-screen-2xl px-4">
-        <h2 className="text-5xl font-bold text-center mb-4 text-gray-800">
+        <h2 className="text-3xl sm:text-4xl 
+                       lg:text-5xl font-bold 
+                       text-center mb-4 text-gray-800">
           Why choose TheAIage?
         </h2>
 
-        <p className="text-center text-gray-600 mb-16 text-3xl">
+        <p className="text-center text-gray-600 sm:mb-16 text-lg">
           Comprehensive support for your mental well-being
         </p>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        {/* ĐỔI GRID → FLEX + WRAP + JUSTIFY-CENTER */}
+        <div className="flex flex-wrap justify-center 
+                        gap-8 sm:gap-10">
           {items.map((f, i) => (
-            <div key={i} className="feature-card bg-white rounded-xl p-8 shadow-lg">
-              
-              <div className="w-16 h-16 rounded-full flex items-center justify-center mb-6 overflow-hidden scale-170">
+            <div
+              key={i}
+              className="
+                feature-card
+                bg-white rounded-xl shadow-lg
+                p-6 sm:p-8 
+                flex flex-col items-center text-center
+              "
+              style={{ width: "280px" }} 
+            >
+              <div className="flex w-20 h-20 rounded-full 
+                              items-center justify-center 
+                              mb-6 overflow-hidden">
                 <img
                   src={f.img}
                   alt={f.title}
@@ -44,8 +58,12 @@ export function Features() {
                 />
               </div>
 
-              <h3 className="text-3xl font-bold mb-4 text-gray-800">{f.title}</h3>
-              <p className="text-gray-600 leading-relaxed">{f.desc}</p>
+              <h3 className="text-xl font-bold mb-4 text-gray-800">
+                {f.title}
+              </h3>
+              <p className="text-base text-gray-600 leading-relaxed">
+                {f.desc}
+              </p>
             </div>
           ))}
         </div>

@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import CounselorCard from "@/presentation/components/CounsellorsComponents/CounsellorCard";
 import NavBar from "@/presentation/components/LandingPage/NaviBar";
 import Footer from "@/presentation/components/LandingPage/Footer";
-import StatsBox from "@/presentation/components/CounsellorsComponents/Review";
 interface StyleConfig {
   card_background: string;
   text_color: string;
@@ -108,10 +107,6 @@ export default function CounselorCardsSection() {
           </div>
         </div>
       </section>
-      
-      <div>
-        <StatsBox />
-      </div>
             
       {toast && (
         <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity">
