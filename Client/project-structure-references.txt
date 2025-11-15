@@ -1,0 +1,127 @@
+├─ .editorconfig
+├─ .env.example
+├─ .gitignore
+├─ index.html
+├─ package.json
+├─ tsconfig.json
+├─ vite.config.ts
+└─ src/
+   ├─ app/                           # Composition Root (initializes the whole app)
+   │  ├─ App.tsx
+   │  ├─ routes.tsx
+   │  ├─ providers/                  # Global providers (Auth, Query, Theme…)
+   │  │  ├─ AuthProvider.tsx
+   │  │  ├─ QueryClientProvider.tsx
+   │  │  └─ ThemeProvider.tsx
+   │  └─ composition-root.ts         # Wires domain interfaces ↔ infra implementations
+   │
+   ├─ domain/                        # Business rules (pure TypeScript, no framework/UI imports)
+   │  ├─ entities/
+   │  │  ├─ Student.ts
+   │  │  ├─ Counsellor.ts
+   │  │  ├─ Session.ts
+   │  │  └─ Message.ts
+   │  ├─ value-objects/
+   │  │  ├─ Email.ts
+   │  │  └─ RiskLevel.ts
+   │  ├─ repositories/               # Contracts/interfaces for data access
+   │  │  ├─ IAuthRepository.ts
+   │  │  ├─ IStudentRepository.ts
+   │  │  ├─ ICounsellorRepository.ts
+   │  │  ├─ ISessionRepository.ts
+   │  │  └─ IMatchingEngine.ts
+   │  ├─ services/                   # Domain algorithms (no API calls)
+   │  │  └─ MatchingService.ts
+   │  ├─ usecases/                   # Application layer – orchestrates domain flow
+   │  │  ├─ LoginUseCase.ts
+   │  │  ├─ GetDevicesUseCase.ts
+   │  │  ├─ MatchStudentUseCase.ts
+   │  │  ├─ StartChatbotSessionUseCase.ts
+   │  │  ├─ GenerateCounsellorAIAssistUseCase.ts
+   │  │  └─ GetStudentHistoryUseCase.ts
+   │  └─ errors/
+   │     ├─ DomainError.ts
+   │     └─ AuthErrors.ts
+   │
+   ├─ infra/                         # Real-world adapters: API, storage, AI, etc.
+   │  ├─ api/
+   │  │  ├─ httpClient.ts            # axios/fetch wrapper with interceptors
+   │  │  ├─ auth.api.ts
+   │  │  ├─ students.api.ts
+   │  │  ├─ counsellors.api.ts
+   │  │  └─ sessions.api.ts
+   │  ├─ repositories/               # Implements domain repository interfaces
+   │  │  ├─ AuthApiRepository.ts
+   │  │  ├─ StudentApiRepository.ts
+   │  │  ├─ CounsellorApiRepository.ts
+   │  │  └─ SessionApiRepository.ts
+   │  ├─ matching/
+   │  │  └─ MatchingEngineImpl.ts    # Implementation of IMatchingEngine
+   │  ├─ ai/                         # Gateways to external AI services (OpenAI/Gemini…)
+   │  │  ├─ counsellorAssist.gateway.ts
+   │  │  └─ chatbot.gateway.ts
+   │  ├─ storage/
+   │  │  ├─ token.storage.ts         # localStorage/sessionStorage adapter
+   │  │  └─ kv.storage.ts            # optional (local KV mock)
+   │  └─ mappers/                    # DTO ↔ Entity mapping
+   │     ├─ student.mapper.ts
+   │     ├─ session.mapper.ts
+   │     └─ counsellor.mapper.ts
+   │
+   ├─ presentation/                  # UI layer (React) – depends only on domain/usecases
+   │  ├─ pages/
+   │  │  ├─ LoginPage/
+   │  │  │  ├─ LoginPage.tsx
+   │  │  │  └─ login.form.ts
+   │  │  ├─ DashboardPage/
+   │  │  │  └─ DashboardPage.tsx
+   │  │  ├─ ChatbotPage/
+   │  │  │  ├─ ChatbotPage.tsx
+   │  │  │  └─ ChatInput.tsx
+   │  │  ├─ MatchingPage/
+   │  │  │  └─ MatchingPage.tsx
+   │  │  └─ SessionPage/
+   │  │     └─ SessionPage.tsx
+   │  ├─ components/
+   │  │  ├─ layout/
+   │  │  │  ├─ AppShell.tsx
+   │  │  │  └─ NavBar.tsx
+   │  │  ├─ ui/                      # Reusable UI (Button, Card, Dialog…)
+   │  │  │  ├─ Button.tsx
+   │  │  │  └─ Card.tsx
+   │  │  ├─ chatbot/
+   │  │  │  ├─ ChatMessage.tsx
+   │  │  │  └─ ChatHistory.tsx
+   │  │  └─ session/
+   │  │     ├─ NotesPanel.tsx
+   │  │     └─ AIHints.tsx
+   │  ├─ hooks/
+   │  │  ├─ useAuth.ts
+   │  │  ├─ useChatbot.ts
+   │  │  ├─ useMatching.ts
+   │  │  └─ useSessions.ts
+   │  ├─ styles/
+   │  │  ├─ globals.css
+   │  │  └─ variables.css
+   │  └─ utils/
+   │     ├─ form.ts
+   │     └─ date.ts
+   │
+   ├─ shared/                        # Cross-layer helpers (not UI-specific)
+   │  ├─ types/
+   │  │  └─ dto.ts
+   │  ├─ constants/
+   │  │  └─ routes.ts
+   │  └─ lib/
+   │     └─ result.ts                # Either/Result helper
+   │
+   ├─ assets/
+   │  ├─ icons/
+   │  └─ images/
+   │
+   ├─ tests/
+   │  ├─ domain/
+   │  ├─ infra/
+   │  └─ presentation/
+   │
+   └─ main.tsx
