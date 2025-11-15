@@ -25,6 +25,8 @@ App.config["SESSION_MONGODB"] = Mongo_Client
 App.config["SESSION_MONGODB_DB"] = "Authentication"
 App.config["SESSION_MONGODB_COLLECT"] = "Sessions"
 App.config["SESSION_PERMANENT"] = True
+App.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+App.config["SESSION_COOKIE_HTTPONLY"] = True
 Session(App)
 
 
@@ -32,7 +34,7 @@ Session(App)
 #   CORS Intialization
 #
 # Khởi tạo CORS hiểu đơn giản cái này là một giao thức bảo mật
-CORS(App, supports_credentials=True, origins=["http://localhost:5173"])
+CORS(App, supports_credentials=True, origins=["http://localhost:5173","http://127.0.0.1:5173"])
 
 
 #
