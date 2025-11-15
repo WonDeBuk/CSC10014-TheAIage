@@ -51,15 +51,35 @@ CORS(App,
      expose_headers=["Content-Type"])
 
 # Additional CORS handler to ensure headers are set correctly
+# This runs after all requests to override any headers Railway might add
 @App.after_request
 def AfterRequest(Response):
     Origin = _Request.headers.get("Origin")
     if Origin and Origin in AllowedOriginList:
+        # Remove any existing CORS headers that might have been set incorrectly
+        Response.headers.pop("Access-Control-Allow-Origin", None)
+        Response.headers.pop("Access-Control-Allow-Credentials", None)
+        # Set the correct CORS headers
         Response.headers["Access-Control-Allow-Origin"] = Origin
         Response.headers["Access-Control-Allow-Credentials"] = "true"
         Response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-        Response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+        Response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Requested-With"
+        Response.headers["Access-Control-Max-Age"] = "3600"
     return Response
+
+# Explicit OPTIONS handler for preflight requests
+@App.before_request
+def HandleOptions():
+    if _Request.method == "OPTIONS":
+        Origin = _Request.headers.get("Origin")
+        if Origin and Origin in AllowedOriginList:
+            Response = _JSonify({})
+            Response.headers["Access-Control-Allow-Origin"] = Origin
+            Response.headers["Access-Control-Allow-Credentials"] = "true"
+            Response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+            Response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Requested-With"
+            Response.headers["Access-Control-Max-Age"] = "3600"
+            return Response
 
 
 #
