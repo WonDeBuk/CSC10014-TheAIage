@@ -84,3 +84,54 @@
 .js-scroll-reveal.is-visible {
   animation: scrollFadeUp 0.7s ease-out forwards;
 }
+
+.scroll-animate {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.scroll-animate.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  animation: scrollFadeUp 0.6s ease-out;
+}
+
+@keyframes scrollFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal-char {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.reveal-char.animate {
+  animation: charFadeIn 0.3s forwards;
+}
+
+@keyframes charFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-bg {
+  background:
+    radial-gradient(circle at 0% 0%, rgba(244, 114, 182, 0.65), transparent 60%),
+    radial-gradient(circle at 100% 0%, rgba(129, 140, 248, 0.65), transparent 60%),
+    radial-gradient(circle at 0% 100%, rgba(45, 212, 191, 0.55), transparent 60%),
+    radial-gradient(circle at 100% 100%, rgba(251, 191, 36, 0.55), transparent 60%),
+    linear-gradient(135deg, #f9fafb, #e5e7eb);
+}

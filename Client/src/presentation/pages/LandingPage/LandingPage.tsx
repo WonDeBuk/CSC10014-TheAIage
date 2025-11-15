@@ -9,11 +9,11 @@ import { HowItWorks } from "@/presentation/components/LandingPage/HowItWorks";
 import ConcernSection from "@/presentation/components/LandingPage/ConcernSection";
 import TestimonialsSection from "@/presentation/components/LandingPage/TestimonialsSection";
 import FreeTestSection from "@/presentation/components/LandingPage/FreeTestSection";
+import { ScrollReveal } from "@/presentation/components/LandingPage/ScrollReveal";
 
 export default function LandingPage() {
   const [toast, setToast] = useState("");
 
-  // useEffect smooth scroll bạn đã có, giữ nguyên
   useEffect(() => {
     const handler = (e: Event) => {
       const a = e.target as HTMLAnchorElement;
@@ -32,62 +32,59 @@ export default function LandingPage() {
     return () => document.removeEventListener("click", handler);
   }, []);
 
-  useEffect(() => {
-    const elements = document.querySelectorAll<HTMLElement>(".js-scroll-reveal");
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
-            observer.unobserve(entry.target); 
-          }
-        });
-      },
-      {
-        threshold: 0.15, 
-      }
-    );
-
-    elements.forEach((el) => observer.observe(el));
-
-    return () => observer.disconnect();
-  }, []);
-
   const onCTA = () => {
-    setToast("Thank you! We will contact you to schedule a consultation as soon as possible.");
+    setToast(
+      "Thank you! We will contact you to schedule a consultation as soon as possible."
+    );
     setTimeout(() => setToast(""), 3000);
   };
 
   return (
     <div className="min-h-full flex flex-col">
-      <NaviBar />
+      <div className="pointer-events-none absolute top-6 left-0 right-0 flex justify-center z-30">
+        <div className="pointer-events-auto">
+          <NaviBar />
+        </div>
+      </div>
 
       <Hero onCTA={onCTA} />
 
       <main className="flex-grow">
-        <section id="concerns">
-          <ConcernSection />
-        </section>
+        <ScrollReveal>
+          <section id="concerns">
+            <ConcernSection />
+          </section>
+        </ScrollReveal>
 
-        <section id="about">
-          <Features />
-        </section>
+        <ScrollReveal>
+          <section id="about">
+            <Features />
+          </section>
+        </ScrollReveal>
 
-        <HowItWorks />
+        <ScrollReveal>
+          <HowItWorks />
+        </ScrollReveal>
 
-        <section id="testimonials">
-          <TestimonialsSection />
-        </section>
+        <ScrollReveal>
+          <section id="testimonials">
+            <TestimonialsSection />
+          </section>
+        </ScrollReveal>
 
-        <section id="test">
-          <FreeTestSection />
-        </section>
+        <ScrollReveal>
+          <section id="test">
+            <FreeTestSection />
+          </section>
+        </ScrollReveal>
 
-        <CTASection onCTA={onCTA} />
-
+        <ScrollReveal>
+          <CTASection onCTA={onCTA} />
+        </ScrollReveal>
       </main>
+
       <Footer />
+
       {toast && (
         <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity">
           {toast}
