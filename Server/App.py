@@ -32,7 +32,16 @@ Session(App)
 #   CORS Intialization
 #
 # Khởi tạo CORS hiểu đơn giản cái này là một giao thức bảo mật
-CORS(App, supports_credentials=True, origins=["https://theaiage.vercel.app"])
+AllowedOriginList = [
+    "http://localhost:5173", # Dev Origin
+    "https://theaiage.vercel.app" # Production Origin
+]
+def GetOrigin():
+    __Origin = _Request.headers.get("Origin")
+    if __Origin in AllowedOriginList:
+        return __Origin
+    return None
+CORS(App, supports_credentials=True, origins=GetOrigin())
 
 
 #
