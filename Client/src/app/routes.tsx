@@ -15,13 +15,18 @@ import FileUpload from "@/presentation/pages/ChatBotTest/FileUpload";
 import RouteProtector from "@/presentation/components/RouteProtector";
 import ActivityPage from "@/presentation/pages/ActivityPage/ActivityPage";
 
-export const router = createBrowserRouter([
+import CounsellorMessagegPage from "@/presentation/pages/MessagePage/CounsellorMessagePage";
 
+export const router = createBrowserRouter([
   { path: "/", element: <LandingPage /> },
-  { path: "/dashboard", element: (
-    <RouteProtector>
-      <DashboardPage />
-    </RouteProtector>) },
+  {
+    path: "/dashboard",
+    element: (
+      <RouteProtector>
+        <DashboardPage />
+      </RouteProtector>
+    ),
+  },
   { path: "/login", element: <LoginPage /> },
   { path: "/register", element: <RegisterPage /> },
   { path: "/counsellors", element: <CounsellorsPage /> },
@@ -32,5 +37,6 @@ export const router = createBrowserRouter([
 
   { path: "/test", element: <ChatBot />},
   { path: "/file", element: <FileUpload />},
+  { path: "/message", element: <CounsellorMessagegPage /> },
   { path: "*", element: <div>404 Not Found</div> },
 ]);
