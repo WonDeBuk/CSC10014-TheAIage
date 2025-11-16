@@ -1,25 +1,17 @@
-import { JSX, useEffect as UseEffect, useState as UseState } from "react";
+import { JSX } from "react";
 import { Navigate } from "react-router-dom";
-import AxiosInstance from "@/util/AxiosInstance";
+import { useAuth } from "@/app/providers/AuthProvider";
 
 export default function RouteProtector({ children }: { children: JSX.Element }) {
-    const [IsLoading, SetLoading] = UseState(true);
-    const [IsAuthenticated, SetAuthenticated] = UseState(false);
+  const { user, loading } = useAuth();
 
-    UseEffect(() => {
-        AxiosInstance
-            .get("/auth/me")
-            .then(() => {
-                SetAuthenticated(true);
-                SetLoading(false);
-            })
-            .catch(() => {
-                SetAuthenticated(false);
-                SetLoading(false);
-            });
-    }, []);
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
-    if (IsLoading) return <div>Loading...</div>
+  if (user) {
+    return children;
+  }
 
-    return IsAuthenticated ? children : <Navigate to="/login" replace/>;
+  return <Navigate to="/login" replace />;
 }
