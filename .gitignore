@@ -25,21 +25,3 @@ dist-ssr
 .env
 .venv
 Client/package-lock.json
-
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-
-# Virtual env
-venv/
-.env/
-
-# Node
-node_modules/
-
-# OS / editor
-.vscode/
-.idea/
-.DS_Store
