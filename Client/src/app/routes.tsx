@@ -6,19 +6,31 @@ import DashboardPage from "../presentation/pages/DashboardPage/DashboardPage";
 import CounsellorsPage from "../presentation/pages/CounsellorsPage/CounsellorsPage";
 import AboutPage from "../presentation/pages/AboutPage/AboutPage";
 import RegisterPage from "../presentation/pages/RegisterPage/RegisterPage";
+import CounsellorMessagePage from "../presentation/pages/MessagePage/CounsellorMessagePage";
 
 import RouteProtector from "@/presentation/components/RouteProtector";
 
-export const router = createBrowserRouter([
-
-  { path: "/", element: <LandingPage /> },
-  { path: "/dashboard", element: (
-    <RouteProtector>
-      <DashboardPage />
-    </RouteProtector>) },
-  { path: "/login", element: <LoginPage /> },
-  { path: "/register", element: <RegisterPage /> },
-  { path: "/counsellors", element: <CounsellorsPage /> },
-  { path: "/about", element: <AboutPage /> },
-  { path: "*", element: <div>404 Not Found</div> },
-]);
+export const router = createBrowserRouter(
+  [
+    { path: "/", element: <LandingPage /> },
+    {
+      path: "/dashboard",
+      element: (
+        <RouteProtector>
+          <DashboardPage />
+        </RouteProtector>
+      ),
+    },
+    { path: "/login", element: <LoginPage /> },
+    { path: "/register", element: <RegisterPage /> },
+    { path: "/counsellors", element: <CounsellorsPage /> },
+    { path: "/about", element: <AboutPage /> },
+    { path: "/message", element: <CounsellorMessagePage /> },
+    { path: "*", element: <div>404 Not Found</div> },
+  ],
+  {
+    future: {
+      v7_startTransition: true,
+    },
+  }
+);
