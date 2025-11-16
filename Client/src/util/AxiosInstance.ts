@@ -1,22 +1,33 @@
-import Axios from 'axios';
+// import Axios from 'axios';
+
+// const AxiosInstance = Axios.create({
+//     baseURL: "https://theaiage.up.railway.app",
+//     withCredentials: true
+// })
+
+// AxiosInstance.interceptors.request.use(function (Config) {
+//     return Config;
+//   }, function (Error) {
+//     return Promise.reject(Error);
+//   });
+
+// AxiosInstance.interceptors.response.use(function (Response) {
+//     return Response;
+//   }, function (Error) {
+//     return Promise.reject(Error);
+//   });
+
+// export default AxiosInstance;
+
+import Axios from "axios";
 
 const AxiosInstance = Axios.create({
-    baseURL: "http://localhost:8000",
-    withCredentials: true
-})
-
-AxiosInstance.interceptors.request.use((config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
+  baseURL: "http://localhost:5000",
+  withCredentials: true,
 });
 
-AxiosInstance.interceptors.response.use(function (Response) {
-    return Response;
-  }, function (Error) {
-    return Promise.reject(Error);
-  });
+AxiosInstance.interceptors.request.use((config) => {
+  return config;
+});
 
 export default AxiosInstance;

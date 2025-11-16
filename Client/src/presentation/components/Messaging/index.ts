@@ -8,5 +8,6 @@ export { default as ChatWindow } from './ChatWindow';
 export { default as SummaryPanel } from './SummaryPanel';
 export type { Conversation, Message } from "./type";
 
-export { default as CounsellorMessagingPage } from './CounsellorMessagingPage';
+// export { default as CounsellorMessagingPage } from './CounsellorMessagingPage';
+export {default as CounsellorMessagingPage} from './CounsellorMessagingPage';
 export { default as StudentMessagingPage } from './StudentMessagingPage';
