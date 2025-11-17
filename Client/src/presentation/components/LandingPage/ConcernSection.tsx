@@ -69,52 +69,49 @@ const CONCERNS: Concern[] = [
 
 export default function ConcernsSection() {
   return (
-    <section className="py-20 px-6 bg-[#f1f5f9]">
+    <section className="bg-[#f1f5f9] px-4 py-16 sm:px-6 lg:py-24">
       <div className="max-w-screen-2xl mx-auto">
 
-        <h2 className="text-center text-5xl md:text-5xl font-bold text-[#0f172a] mb-10">
+        <h2 className="mb-10 text-center text-3xl 
+                       sm:text-4xl lg:text-5xl 
+                       font-bold text-[#0f172a]">
           We've got you covered for almost every concern
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+        <div className="flex flex-wrap justify-center gap-6 sm:gap-8">
           {CONCERNS.map((item, index) => (
             <div
               key={index}
               className="
-                card-motion bg-white rounded-xl shadow-md border border-blue-100 
-                hover:shadow-xl transition duration-300 p-5
+                card-motion bg-white rounded-xl shadow-md 
+                border border-blue-100 h-full
+                hover:shadow-xl transition duration-300 
+                p-4 sm:p-5 flex flex-col
               "
-              style={{ animationDelay: `${index * 0.1}s` }}
+              style={{
+                animationDelay: `${index * 0.1}s`,
+                width: "300px",        
+              }}
             >
               <img
                 src={item.image}
                 alt={item.title}
                 className="
-                  w-full h-40 object-cover rounded-md mb-4
-                  shadow-sm transition-transform duration-300 hover:scale-[1.03]
+                  h-40 w-full object-cover rounded-md mb-4
+                  shadow-sm transition-transform duration-300 
+                  hover:scale-[1.03]
                 "
               />
 
-              <h3 className="font-semibold text-3xl text-[#1e293b] mb-2">
+              <h3 className="font-semibold text-xl text-[#1e293b] mb-2">
                 {item.title}
               </h3>
 
-              <p className="text-2xl text-[#475569] leading-relaxed">
+              <p className="text-sm text-[#475569] leading-relaxed">
                 {item.description}
               </p>
             </div>
           ))}
-        </div>
-
-        <div className="text-center mt-14">
-          <button
-            className="
-              px-8 py-3 rounded-full 
-              bg-[#3b82f6] text-white font-medium
-              hover:bg-[#2563eb] transition shadow-lg
-              hover:scale-[1.05]">
-            Get help
-          </button>
         </div>
 
       </div>

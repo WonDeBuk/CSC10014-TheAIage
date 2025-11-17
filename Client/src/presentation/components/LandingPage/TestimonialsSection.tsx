@@ -25,34 +25,38 @@ export default function TestimonialsSection() {
   return (
     <section className="py-20 px-6 bg-white">
       <div className="max-w-screen-2xl mx-auto">
-        <h2 className="text-center text-5xl md:text-5xl font-bold text-[#0f172a] mb-4">
+
+        <h2 className="text-center text-4xl font-bold text-[#0f172a] mb-12">
           Read how our users feel
         </h2>
-        
-        <div className="grid gap-10 md:grid-cols-2">
+
+        <div className="flex flex-wrap justify-center gap-10">
           {TESTIMONIALS.map((item, index) => (
             <article
               key={index}
               className="
                 bg-white rounded-2xl shadow-lg 
                 px-8 py-8 flex flex-col gap-4
-              ">
-              <div className="text-[#0ea5e9] text-4xl">★★★★★</div>
+              "
+              style={{ width: "360px" }} 
+            >
+              <div className="text-[#0ea5e9] text-2xl">★★★★★</div>
 
-              <h3 className="font-semibold text-3xl text-[#0f172a]">
+              <h3 className="font-semibold text-2xl text-[#0f172a]">
                 {item.title}
               </h3>
 
-              <p className="text-[#475569] leading-relaxed text-2xl mb-4">
+              <p className="text-[#475569] leading-relaxed text-base mb-4">
                 {item.content}
               </p>
 
-              <span className="font-semibold text-[#1e293b] text-2xl">
+              <span className="font-semibold text-[#1e293b] text-lg">
                 — {item.name}
               </span>
             </article>
           ))}
         </div>
+
       </div>
     </section>
   );
