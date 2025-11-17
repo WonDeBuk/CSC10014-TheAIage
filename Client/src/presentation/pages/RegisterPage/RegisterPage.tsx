@@ -1,4 +1,5 @@
 import React, { useState, ChangeEvent, FormEvent } from "react";
+import AxiosInstance from "@/util/AxiosInstance";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../../util/AxiosInstance";
 
