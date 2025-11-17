@@ -1,17 +1,15 @@
 import Axios from 'axios';
 
 const AxiosInstance = Axios.create({
-    baseURL: "http://localhost:8000",
+    baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000",
     withCredentials: true
 })
 
-AxiosInstance.interceptors.request.use((config) => {
-    const token = localStorage.getItem("token");
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-});
+AxiosInstance.interceptors.request.use(function (Config) {
+    return Config;
+  }, function (Error) {
+    return Promise.reject(Error);
+  });
 
 AxiosInstance.interceptors.response.use(function (Response) {
     return Response;
