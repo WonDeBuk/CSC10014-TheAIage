@@ -1,5 +1,6 @@
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import axiosInstance from "../../../util/AxiosInstance";
 
 interface FormData {
     name: string;
@@ -11,6 +12,7 @@ interface FormData {
 export default function RegisterPage() {
     const [formData, setFormData] = useState<FormData>({ name: "", email: "", password: "", role: "" });
     const [errorMessage, setErrorMessage] = useState<string>("");
+    const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
 
@@ -25,13 +27,42 @@ export default function RegisterPage() {
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setLoading(true);
+        setErrorMessage("");
 
-        // if (!formData.email || !formData.password || !formData.name) {
-        //     setErrorMessage("Please don't leave an empty field.");
-        //     return;
-        // }
+        //Validation
+        if (!formData.email || !formData.password || !formData.name) {
+            setErrorMessage("Please fill in all fields.");
+            setLoading(false);
+            return;
+        }
 
-        navigate("/")
+        if (formData.password.length < 8) {
+            setErrorMessage("Password must be at least 8 characters.");
+            setLoading(false);
+            return;
+        }
+
+        try {
+            // Call backend register API
+            const response = await axiosInstance.post("/auth/register", {
+                Email: formData.email,
+                PlainPassword: formData.password,
+            });
+
+            console.log("Registration successful:", response.data);
+            
+            // After successful registration, redirect to login
+            navigate("/login");
+        } catch (error: any) {
+            console.error("Registration error:", error);
+            setErrorMessage(
+                error.response?.data?.error || 
+                "Registration failed. Please try again."
+            );
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
