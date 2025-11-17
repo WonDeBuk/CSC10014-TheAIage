@@ -4,7 +4,7 @@ import { AnimatedText } from "./AnimatedText";
 type Props = { onCTA: () => void };
 export function Hero({ onCTA }: Props) {
   return (
-    <header className="text-white px-4 py-16 sm:px-6 md:py-24 hero-bg">
+    <header className="text-white px-4 py-16 sm:px-6 md:py-24 hero-bg w-1vw">
 
       <div className="mx-auto w-full 
                       max-w-screen-2xl 
