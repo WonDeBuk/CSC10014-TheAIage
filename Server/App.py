@@ -25,14 +25,11 @@ App.config["SESSION_MONGODB"] = Mongo_Client
 App.config["SESSION_MONGODB_DB"] = "Authentication"
 App.config["SESSION_MONGODB_COLLECT"] = "Sessions"
 App.config["SESSION_PERMANENT"] = True
-
-# Cookie configuration for cross-origin requests
 App.config["SESSION_COOKIE_SAMESITE"] = "None"
 App.config["SESSION_COOKIE_SECURE"] = True
 App.config["SESSION_COOKIE_HTTPONLY"] = True
 
 Session(App)
-
 
 #
 #   CORS Intialization
@@ -43,70 +40,8 @@ AllowedOriginList = [
     "https://theaiage.vercel.app" # Production Origin
 ]
 
-@App.before_request
-def HandleOptions():
-    if _Request.method == "OPTIONS":
-        Origin = _Request.headers.get("Origin")
-        if Origin and Origin in AllowedOriginList:
-            Response = _JSonify({})
-            Response.headers["Access-Control-Allow-Origin"] = Origin
-            Response.headers["Access-Control-Allow-Credentials"] = "true"
-            Response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-            Response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Requested-With"
-            Response.headers["Access-Control-Max-Age"] = "3600"
-            return Response
+CORS(App, supports_credentials=True, origins=AllowedOriginList)
 
-CORS(App, 
-     supports_credentials=True, 
-     origins=AllowedOriginList,
-     allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
-     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-     expose_headers=["Content-Type"],
-     max_age=3600)
-
-@App.after_request
-def AfterRequest(Response):
-    Origin = _Request.headers.get("Origin")
-    if Origin and Origin in AllowedOriginList:
-        Response.headers["Access-Control-Allow-Origin"] = Origin
-        Response.headers["Access-Control-Allow-Credentials"] = "true"
-        Response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-        Response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-Requested-With"
-        Response.headers["Access-Control-Max-Age"] = "3600"
-        
-        # Ensure session cookie has correct attributes for cross-origin
-        # Flask-Session sets the cookie, but we need to ensure it has SameSite=None
-        if 'Set-Cookie' in Response.headers:
-            cookie_header = Response.headers.get('Set-Cookie', '')
-            # Check if this is a session cookie
-            if 'session=' in cookie_header.lower() or 'sessionid=' in cookie_header.lower():
-                # Remove existing SameSite if present and add correct one
-                cookie_parts = cookie_header.split(';')
-                new_parts = []
-                has_samesite = False
-                has_secure = False
-                
-                for part in cookie_parts:
-                    part = part.strip()
-                    if part.lower().startswith('samesite='):
-                        # Replace with None
-                        new_parts.append('SameSite=None')
-                        has_samesite = True
-                    elif part.lower() == 'secure':
-                        new_parts.append('Secure')
-                        has_secure = True
-                    else:
-                        new_parts.append(part)
-                
-                # Add if missing
-                if not has_samesite:
-                    new_parts.append('SameSite=None')
-                if not has_secure:
-                    new_parts.append('Secure')
-                
-                Response.headers['Set-Cookie'] = '; '.join(new_parts)
-    
-    return Response
 
 #
 #   Authentication
