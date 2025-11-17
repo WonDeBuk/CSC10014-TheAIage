@@ -13,6 +13,7 @@ export default function LoginPage() {
     password: "",
   });
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
   const { login } = useAuth(); 
@@ -28,24 +29,30 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoading(true);
+    setErrorMessage("");
 
     if (!formData.email || !formData.password) {
       setErrorMessage("Please fill in both email and password.");
+      setLoading(false);
       return;
     }
 
     try {
-    const response = await login(formData.email, formData.password)
-    navigate("/");
-    } 
-    catch (error: any) {
+      await login(formData.email, formData.password);
+      navigate("/");
+    } catch (error: any) {
+      console.error("Login error:", error);
       if (error.response) {
         const data = error.response.data;
-        setErrorMessage(data.detail || "Login failed.")
+        setErrorMessage(
+          data.Message || data.Error || "Login failed with status " + error.response.status
+        );
+      } else {
+        setErrorMessage("Network error. Please check server.");
       }
-      else {
-        setErrorMessage("Login failed.");
-      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -96,7 +103,8 @@ export default function LoginPage() {
                                  h-[20px] bg-[#efebef] 
                                  min-h-10 rounded-lg p-3 
                      ${formData.email ? "text-black" : "text-[#8c8097]"}`} 
-                     placeholder="example@gmail.com" />
+                     placeholder="example@gmail.com"
+                     disabled={loading} />
             </div>
 
             <div className="w-full">
@@ -113,7 +121,8 @@ export default function LoginPage() {
                      h-[20px] bg-[#efebef] 
                      min-h-10 rounded-lg p-3 
                      ${formData.password ? "text-black" : "text-[#8c8097]"}`} 
-                     placeholder="Please check for capitalizations and miscellaneous symbols." />
+                     placeholder="Please check for capitalizations and miscellaneous symbols."
+                     disabled={loading} />
 
             </div>
           </div>
@@ -123,8 +132,9 @@ export default function LoginPage() {
                    className="text-white text-sm 
                               bg-black h-[50px] 
                               text-center w-full 
-                              rounded-lg" 
-                   value="LOGIN"></input>
+                              rounded-lg cursor-pointer disabled:opacity-50" 
+                   value={loading ? "LOGGING IN..." : "LOGIN"}
+                   disabled={loading} />
           </div>
         </form>
       </div>
