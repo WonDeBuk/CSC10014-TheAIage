@@ -1,4 +1,5 @@
 import React, { useState, ChangeEvent, FormEvent } from "react";
+import AxiosInstance from "@/util/AxiosInstance";
 import { useNavigate } from "react-router-dom";
 
 interface FormData {
@@ -27,12 +28,31 @@ export default function RegisterPage() {
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        // if (!formData.email || !formData.password || !formData.name) {
-        //     setErrorMessage("Please don't leave an empty field.");
-        //     return;
-        // }
+        try {
+            const Respone = await AxiosInstance.post("/auth/register", {
+                "Name": formData.name,
+                "Email": formData.email,
+                "PlainPassword": formData.password,
+                "Role": formData.role
+            },
+            { 
+                withCredentials: true,
+                validateStatus: (status) => status < 400 || status === 401
+            });
 
-        navigate("/")
+            console.log(Respone);
+            if (Respone.status === 401) {
+                setErrorMessage(Respone.data.Message || "Registration failed.");
+            }
+
+            else {
+                console.log("Registration successful");
+            }
+            setFormData({ name: "", email: "", password: "", role: "" });
+        }
+        catch (Error: any) {
+            setErrorMessage("Unexpected error occurred. Please try again later.");
+        }
     };
 
     return (

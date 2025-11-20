@@ -51,7 +51,7 @@ def AuthenticationRequired(FunctionPtr):
     @wraps(FunctionPtr)
     def AuthenticationFunction(*args, **kwargs):
         if "UserID" not in _Session:
-            return _JSonify({"Error": "Not Authenticated"}), 401
+            return _JSonify({"Message": "Not Authenticated"}), 401
         return FunctionPtr(*args, **kwargs)
     return AuthenticationFunction
 
@@ -63,11 +63,13 @@ def UnauthenticationRequired(FunctionPtr):
     # 2. Chưa có trong Sessions tiếp tục các bước Login
     def UnauthenticationFunction(*args, **kwargs):
         if "UserID" in _Session:
-            return _JSonify({"Error": "Already Logged In"}), 401
+            return _JSonify({"Message": "Already Logged In"}), 401
         return FunctionPtr(*args, **kwargs)
     return UnauthenticationFunction
 
-
+@App.get("/")
+def Home():
+    return _JSonify({"Message": "TheAIage Server is Running"}), 200
 
 @App.post("/auth/register")
 @UnauthenticationRequired

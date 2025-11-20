@@ -33,6 +33,23 @@ class LastMessageModel(EmbeddedDocument):
     Content = StringField(required=True)
     CreatedAt = DateTimeField(default=lambda: DateTime.now(TimeZone.utc))
 
+class MessageModel(Document):
+    MessageID = ObjectIdField(primary_key=True, default=ObjectId)
+    InConversationID = ReferenceField("ConversationModel",
+                                    required=True,
+                                    reverse_delete_rule=CASCADE)
+    SenderID = StringField(required=True)
+    Content = StringField(required=True)
+    CreatedAt = DateTimeField(default=lambda: DateTime.now(TimeZone.utc))
+    meta = {
+        "db_alias": "ChatDB",
+        "collection": "Messages",
+        "indexes": [
+            "InConversationID",
+            "-CreatedAt"
+        ]
+    }
+
 class ConversationModel(Document):
     ConversationID = ObjectIdField(primary_key=True, default=ObjectId)
     CounsellorID = StringField(required=True)
