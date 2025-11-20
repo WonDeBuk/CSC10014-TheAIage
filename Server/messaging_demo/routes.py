@@ -14,7 +14,7 @@ _demo_conversations = [
 _demo_messages = {
     "c1": [
         {"id": f"m{i+1}", "sender": "user" if i%2==0 else "agent", "text": f"Demo message #{i+1}", "ts": datetime.utcnow().isoformat() + "Z"}
-        for i in range(12)  # initial 12 messages for c1
+        for i in range(100)  # initial 12 messages for c1
     ],
     "c2": [
         {"id": "m1", "sender": "koc", "text": "I received the product", "ts": datetime.utcnow().isoformat() + "Z"}
