@@ -9,14 +9,16 @@ import RegisterPage from "../presentation/pages/RegisterPage/RegisterPage";
 import ChatPage from "../presentation/pages/ChatPage/ChatPage";
 
 import RouteProtector from "@/presentation/components/RouteProtector";
-
 export const router = createBrowserRouter([
-
   { path: "/", element: <LandingPage /> },
-  { path: "/dashboard", element: (
-    <RouteProtector>
-      <DashboardPage />
-    </RouteProtector>) },
+  {
+    path: "/dashboard",
+    element: (
+      <RouteProtector>
+        <DashboardPage />
+      </RouteProtector>
+    ),
+  },
   { path: "/login", element: <LoginPage /> },
   { path: "/register", element: <RegisterPage /> },
   { path: "/counsellors", element: <CounsellorsPage /> },
