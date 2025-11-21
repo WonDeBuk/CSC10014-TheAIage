@@ -195,7 +195,7 @@ export default function ChatPage() {
     if (convoEndIndex >= allConvos.length) return; // no more
 
     loadingMoreConvoRef.current = true;
-    // simulate fetch delay (replace with actual API call)
+    // simulate fetch delay -> thay bang api
     setTimeout(() => {
       const nextEnd = Math.min(
         allConvos.length,
@@ -219,7 +219,7 @@ export default function ChatPage() {
     const prevScrollHeight = container.scrollHeight;
     const newStart = Math.max(0, chatStartIndex - CHAT_PAGE_SIZE);
 
-    // simulate fetch delay / API
+    // simulate fetch delay
     setTimeout(() => {
       const newDisplay = allMessages
         .slice(newStart, chatStartIndex)
@@ -349,7 +349,7 @@ export default function ChatPage() {
       </div>
       {/* center*/}
       <div className="bg-green-200 w-6/10 h-1/1 flex flex-col justify-between">
-        <div className="top-0 w-1/1 h-[225px] bg-black flex items-center px-5 rounded-b-[15px]">
+        <div className="top-0 w-1/1 h-[105px] bg-black flex items-center px-5 rounded-b-[15px]">
           <div className="w-[56px] h-[56px] rounded-full bg-white mr-5"></div>
           <p className="text-white">EDWIN</p>
         </div>
@@ -401,26 +401,3 @@ export default function ChatPage() {
     </div>
   );
 }
-
-/*
-<div className="w-full h-2/11 bg-inherit flex justify-start items-center pl-3 gap-2">
-          <div>
-            <img
-              src={home_icon}
-              className="w-[40px] h-[40px]"
-              onClick={() => {
-                navigate("/");
-              }}
-            />
-          </div>
-          <div>
-            <img
-              src={setting_icon}
-              className="w-[40px] h-[40px]"
-              onClick={() => {
-                navigate("/");
-              }}
-            />
-          </div>
-        </div>
-*/
