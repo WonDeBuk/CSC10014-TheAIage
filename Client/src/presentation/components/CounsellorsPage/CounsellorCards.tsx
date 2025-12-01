@@ -1,5 +1,13 @@
 import React from "react";
 
+// ----- Dữ liệu + style mặc định -----
+interface StyleConfig {
+  card_background: string;
+  text_color: string;
+  font_family: string;
+  font_size: number;
+}
+
 interface CardData {
   name: string;
   specialty: string;
@@ -11,20 +19,52 @@ interface CardData {
   badgeText: string;
 }
 
-interface StyleConfig {
-  card_background: string;
-  text_color: string;
-  font_family: string;
-  font_size: number;
-}
+const COUNSELOR_DATA: CardData[] = [
+  {
+    name: "Bác sĩ Đạt",
+    specialty: "Tiến sĩ tâm lý học lâm sàng",
+    description:
+      "Chuyên về lo âu, trầm cảm và liệu pháp hành vi nhận thức. Bác sĩ Đạt có hơn 12 năm kinh nghiệm trong việc giúp mọi người vượt qua các vấn đề về sức khỏe tinh thần.",
+    expertise: ["Rối loạn lo âu", "Trầm cảm", "CBT"],
+    availability: "Thứ 2 - Thứ 6",
+    languages: "Tiếng Việt, Tiếng Anh",
+    themeColor: "#8b5cf6",
+    badgeText: "Đánh giá cao",
+  },
+  {
+    name: "Bác sĩ Hiền",
+    specialty: "Nhà trị liệu gia đình được cấp phép (LMFT)",
+    description:
+      "Chuyên gia trong lĩnh vực động lực gia đình, trị liệu cho các cặp đôi và tư vấn mối quan hệ. Bác sĩ Hiền có 10 năm kinh nghiệm trong việc giúp các gia đình xây dựng mối liên kết bền chặt hơn.",
+    expertise: ["Trị liệu cặp đôi", "Tư vấn gia đình", "Giao tiếp"],
+    availability: "Thứ 3 - Thứ 7",
+    languages: "Tiếng Việt, Tiếng Anh",
+    themeColor: "#10b981",
+    badgeText: "Được chứng nhận",
+  },
+  {
+    name: "Bác sĩ Trinh",
+    specialty: "Chuyên gia chấn thương tâm lý, Tiến sĩ Tâm lý (Psy.D.)",
+    description:
+      "Chuyên về hồi phục sau chấn thương, PTSD (rối loạn căng thẳng sau sang chấn), và liệu pháp EMDR. Bác sĩ Trinh đã dành 8 năm kinh nghiệm để giúp mọi người hồi phục từ những trải nghiệm chấn thương bằng các phương pháp dựa trên bằng chứng.",
+    expertise: ["PTSD", "Liệu pháp EMDR", "Hồi phục sau tổn thương"],
+    availability: "Thứ 2 - Thứ 5",
+    languages: "Tiếng Việt, Tiếng Anh",
+    themeColor: "#f97316",
+    badgeText: "Chuyên gia",
+  },
+];
 
-interface CounselorCardProps {
-  data: CardData;
-  styles: StyleConfig;
-}
+const mockStyles: StyleConfig = {
+  card_background: "#ffffff",
+  text_color: "#1e293b",
+  font_family: "system-ui, -apple-system, sans-serif",
+  font_size: 16,
+};
 
-const CounselorCard: React.FC<CounselorCardProps> = ({ data, styles }) => {
-  const baseSize = styles.font_size;
+// ----- Component hiển thị từng card -----
+const CounsellorCard: React.FC<{ data: CardData }> = ({ data }) => {
+  const baseSize = mockStyles.font_size;
 
   return (
     <div
@@ -39,9 +79,9 @@ const CounselorCard: React.FC<CounselorCardProps> = ({ data, styles }) => {
         flex flex-col
       "
       style={{
-        backgroundColor: styles.card_background,
-        fontFamily: styles.font_family,
-        color: styles.text_color,
+        backgroundColor: mockStyles.card_background,
+        fontFamily: mockStyles.font_family,
+        color: mockStyles.text_color,
       }}
     >
       {/* Avatar + badge */}
@@ -77,13 +117,6 @@ const CounselorCard: React.FC<CounselorCardProps> = ({ data, styles }) => {
               padding: "0.25rem 0.75rem",
             }}
           >
-            <svg
-              className="w-4 h-4"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path d="M9 11.75c-.69 0-1.25.56-1.25 1.25s.56 1.25 1.25 1.25 1.25-.56 1.25-1.25-.56-1.25-1.25-1.25zm6 0c-.69 0-1.25.56-1.25 1.25s.56 1.25 1.25 1.25 1.25-.56 1.25-1.25-.56-1.25-1.25-1.25zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8 0-.29.02-.58.05-.86 2.36-1.05 4.23-2.98 5.21-5.37C11.07 8.33 14.05 10 17.42 10c.78 0 1.53-.09 2.25-.26.21.71.33 1.47.33 2.26 0 4.41-3.59 8-8 8z" />
-            </svg>
             {data.badgeText}
           </span>
         </div>
@@ -132,17 +165,14 @@ const CounselorCard: React.FC<CounselorCardProps> = ({ data, styles }) => {
             fontWeight: 600,
           }}
         >
-          Availability
+          Expertise
         </h4>
 
         <div className="flex flex-wrap gap-2">
           {data.expertise.map((item, idx) => (
             <span
               key={idx}
-              className="
-                inline-flex items-center
-                rounded-full
-              "
+              className="inline-flex items-center rounded-full"
               style={{
                 backgroundColor: "#f1f5f9",
                 color: "#475569",
@@ -157,22 +187,16 @@ const CounselorCard: React.FC<CounselorCardProps> = ({ data, styles }) => {
       </div>
 
       {/* Availability & languages */}
-      <div
-        className="border-t pt-4"
-        style={{ borderColor: "#e2e8f0" }}
-      >
+      <div className="border-t pt-4" style={{ borderColor: "#e2e8f0" }}>
         <div className="flex justify-between mb-2">
-          <span
-            className="text-gray-500"
-            style={{ fontSize: "0.875rem" }}
-          >
+          <span className="text-gray-500" style={{ fontSize: "0.875rem" }}>
             Time
           </span>
           <span
             className="font-semibold"
             style={{
               fontSize: "0.875rem",
-              color: styles.text_color,
+              color: mockStyles.text_color,
             }}
           >
             {data.availability}
@@ -180,17 +204,14 @@ const CounselorCard: React.FC<CounselorCardProps> = ({ data, styles }) => {
         </div>
 
         <div className="flex justify-between">
-          <span
-            className="text-gray-500"
-            style={{ fontSize: "0.875rem" }}
-          >
+          <span className="text-gray-500" style={{ fontSize: "0.875rem" }}>
             Languages
           </span>
           <span
             className="font-semibold"
             style={{
               fontSize: "0.875rem",
-              color: styles.text_color,
+              color: mockStyles.text_color,
             }}
           >
             {data.languages}
@@ -201,4 +222,24 @@ const CounselorCard: React.FC<CounselorCardProps> = ({ data, styles }) => {
   );
 };
 
-export default CounselorCard;
+// ----- Component hiển thị toàn bộ danh sách chuyên gia -----
+const CounsellorCards: React.FC = () => {
+  return (
+    <div className="hero-bg w-full py-30">
+      <div
+        className="counselors-grid px-6 max-w-6xl mx-auto"
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+          gap: "2rem",
+        }}
+      >
+        {COUNSELOR_DATA.map((data, idx) => (
+          <CounsellorCard key={idx} data={data} />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default CounsellorCards;
