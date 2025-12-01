@@ -6,6 +6,8 @@ import DashboardPage from "../presentation/pages/DashboardPage/DashboardPage";
 import CounsellorsPage from "../presentation/pages/CounsellorsPage/CounsellorsPage";
 import AboutPage from "../presentation/pages/AboutPage/AboutPage";
 import RegisterPage from "../presentation/pages/RegisterPage/RegisterPage";
+import ChatPage from "../presentation/pages/ChatPage/ChatPage";
+
 import RouteProtector from "@/presentation/components/RouteProtector";
 
 import TestSelection from "@/presentation/pages/TestPage/TestSelectionPage";
@@ -32,5 +34,6 @@ export const router = createBrowserRouter([
   { path: "/register", element: <RegisterPage /> },
   { path: "/counsellors", element: <CounsellorsPage /> },
   { path: "/about", element: <AboutPage /> },
+  { path: "/chat", element: <ChatPage /> },
   { path: "*", element: <div>404 Not Found</div> },
 ]);
