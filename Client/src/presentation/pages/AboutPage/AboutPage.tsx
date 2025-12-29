@@ -1,4 +1,5 @@
-import React, { Suspense, lazy, memo } from "react";
+import React, { Suspense, lazy, memo, useEffect } from "react";
+import { useAuth } from "@/app/providers/AuthProvider";
 
 import NavBar from "@/presentation/components/LandingPage/NaviBar";
 import Hero from "@/presentation/components/AboutPage/Hero";
@@ -22,6 +23,11 @@ const SectionFallback = memo(() => (
 SectionFallback.displayName = "SectionFallback";
 
 function AboutPage() {
+  const { user } = useAuth()
+
+  useEffect(() => {
+    console.log(user)
+  }, [])
   return (
     <main>
       <NavBar />

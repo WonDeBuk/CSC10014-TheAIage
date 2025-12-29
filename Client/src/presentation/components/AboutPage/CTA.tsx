@@ -19,12 +19,10 @@ export default function CTA() {
           href="#"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-block bg-white text-[##667eea] /* fallback not used; see below */
-                     px-10 py-3 rounded-pill font-semibold text-base
+          className="inline-block bg-white px-10 py-3 rounded-pill font-semibold text-base
                      shadow-[0_4px_15px_rgba(0,0,0,0.2)]
                      transform transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_6px_20px_rgba(0,0,0,0.3)]
                      text-primary"
-          /* Note: `text-primary` uses the color token from tailwind config */
         >
           Get Involved
         </a>

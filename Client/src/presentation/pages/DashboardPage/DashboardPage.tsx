@@ -1,11 +1,13 @@
 import { useAuth } from "@/app/providers/AuthProvider";
+import { useNavigate } from "react-router-dom";
 
 export default function DashboardPage() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
-    await logout();
-    window.location.href = "/"; // Redirect to home
+    logout();
+    navigate("/"); // Redirect to home
   };
 
   return (
@@ -14,7 +16,7 @@ export default function DashboardPage() {
 
       <div className="mt-4 flex items-center gap-4">
         <span className="text-lg">
-          Logged in as: <b>{user?.Email}</b>
+          Logged in as : <b>{user?.username}</b>
         </span>
 
         <button

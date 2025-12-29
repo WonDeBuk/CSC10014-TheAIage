@@ -7,8 +7,13 @@ import CounsellorsPage from "../presentation/pages/CounsellorsPage/CounsellorsPa
 import AboutPage from "../presentation/pages/AboutPage/AboutPage";
 import RegisterPage from "../presentation/pages/RegisterPage/RegisterPage";
 import ChatPage from "../presentation/pages/ChatPage/ChatPage";
+import ChatPageAI from "@/presentation/pages/ChatPage/ChatPageAI";
+
+import ChatBot from "@/presentation/pages/ChatBotTest/ChatBot";
+import FileUpload from "@/presentation/pages/ChatBotTest/FileUpload";
 
 import RouteProtector from "@/presentation/components/RouteProtector";
+import ActivityPage from "@/presentation/pages/ActivityPage/ActivityPage";
 
 export const router = createBrowserRouter([
 
@@ -22,5 +27,10 @@ export const router = createBrowserRouter([
   { path: "/counsellors", element: <CounsellorsPage /> },
   { path: "/about", element: <AboutPage /> },
   { path: "/chat", element: <ChatPage /> },
+  { path: "/chatai", element: <ChatPageAI /> },
+  { path: "activity", element: <ActivityPage/>},
+
+  { path: "/test", element: <ChatBot />},
+  { path: "/file", element: <FileUpload />},
   { path: "*", element: <div>404 Not Found</div> },
 ]);

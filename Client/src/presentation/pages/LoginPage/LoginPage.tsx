@@ -35,19 +35,18 @@ export default function LoginPage() {
     }
 
     try {
-    await login(formData.email, formData.password);
+    const response = await login(formData.email, formData.password)
     navigate("/");
-  } catch (error: any) {
-    console.error("Login error:", error);
-    if (error.response) {
-      const data = error.response.data;
-      setErrorMessage(
-        data.Message || data.Error || "Login failed with status " + error.response.status
-      );
-    } else {
-      setErrorMessage("Network error. Please check server.");
+    } 
+    catch (error: any) {
+      if (error.response) {
+        const data = error.response.data;
+        setErrorMessage(data.detail || "Login failed.")
+      }
+      else {
+        setErrorMessage("Login failed.");
+      }
     }
-  }
   };
 
   return (

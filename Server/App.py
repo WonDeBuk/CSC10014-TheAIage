@@ -1,148 +1,268 @@
-from flask import Flask, session as _Session, jsonify as _JSonify, request as _Request, Blueprint
-from flask_session import Session
-from flask_cors import CORS
+import uvicorn
+import socketio
+import re
+from datetime import datetime, timezone, timedelta
+from fastapi import FastAPI, UploadFile, File, Form
+from fastapi.middleware.cors import CORSMiddleware
+from routes.auth import auth_router
+from routes.connection import connection_router
+from routes.chat import chat_router
+from util.token import verify_token
+from helper.summarizer import summarizer
+from helper.analyzer import estimate_research_time
+from database import UserModel, ConversationModel, MessageModel
+from chatbot import agent
+import tempfile
+from langchain_community.document_loaders import PyPDFLoader
 
-from pymongo import MongoClient
-from Database import UserModel
-
-import os as OS
-from functools import wraps
-
-
-#
-#   Core Function
-#
-App = Flask(__name__)
-App.secret_key = OS.urandom(24)
-
-
-#
-#   Session Database Connection
-#
-Mongo_Client = MongoClient("mongodb+srv://namnhat828_db_user:4LLinINT0@firstcluster.ei2ujfu.mongodb.net/")
-App.config["SESSION_TYPE"] = "mongodb"
-App.config["SESSION_MONGODB"] = Mongo_Client
-App.config["SESSION_MONGODB_DB"] = "Authentication"
-App.config["SESSION_MONGODB_COLLECT"] = "Sessions"
-App.config["SESSION_PERMANENT"] = True
-App.config["SESSION_COOKIE_SAMESITE"] = "None"
-App.config["SESSION_COOKIE_SECURE"] = True
-App.config["SESSION_COOKIE_HTTPONLY"] = True
-
-Session(App)
-
-#
-#   CORS Intialization
-#
-# Khởi tạo CORS hiểu đơn giản cái này là một giao thức bảo mật
 AllowedOriginList = [
-    "http://localhost:5173", # Dev Origin
-    "https://theaiage.vercel.app" # Production Origin
+    "http://localhost:5173",  #Dev Origin
+    "https://theaiage.vercel.app"  #Production Origin
 ]
 
-CORS(App, supports_credentials=True, origins=AllowedOriginList)
+sio = socketio.AsyncServer(async_mode="asgi", cors_allowed_origins=AllowedOriginList)
 
+app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=AllowedOriginList,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-#
-#   Authentication
-#
-# Middleware dùng để xác thực tức là bắt buộc phải đăng nhập rồi mới được gọi API này
-def AuthenticationRequired(FunctionPtr):
-    @wraps(FunctionPtr)
-    def AuthenticationFunction(*args, **kwargs):
-        if "UserID" not in _Session:
-            return _JSonify({"Message": "Not Authenticated"}), 401
-        return FunctionPtr(*args, **kwargs)
-    return AuthenticationFunction
+app.include_router(auth_router)
+app.include_router(connection_router)
+app.include_router(chat_router)
 
-# Middleware dùng để xác thực tức là bắt buộc phải chưa đăng nhập rồi mới được gọi API này
-def UnauthenticationRequired(FunctionPtr):
-    @wraps(FunctionPtr)
-    # Kiểm tra nếu User đã có trong Sessions chưa
-    # 1. Đã có trong Sessions trả về thông báo đã Login
-    # 2. Chưa có trong Sessions tiếp tục các bước Login
-    def UnauthenticationFunction(*args, **kwargs):
-        if "UserID" in _Session:
-            return _JSonify({"Message": "Already Logged In"}), 401
-        return FunctionPtr(*args, **kwargs)
-    return UnauthenticationFunction
+sio_app = socketio.ASGIApp(sio, app)
 
-@App.get("/")
-def Home():
-    return _JSonify({"Message": "TheAIage Server is Running"}), 200
+uid_to_sid = {}
 
-@App.post("/auth/register")
-@UnauthenticationRequired
-#   POST Body Template
-#   Email: Str
-#   PlainPassword: Str
-def AuthRegister():
-    __Data = _Request.get_json()
-    __Email = __Data.get("Email")
-    __PlainPassword = __Data.get("PlainPassword")
+@app.get("/")
+async def root():
+    return {"message": "Welcome to TheAIAge Server!"}
 
-    if UserModel.objects(Email=__Email).first():
-        return _JSonify({"error": "Email Already Exists"}), 401
+@app.post("/test_upload")
+async def upload_file(file: UploadFile = File(...), deadline: str = Form(...)):
+    # Save PDF temporarily
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+        tmp.write(await file.read())
+        tmp_path = tmp.name
+
+    loader = PyPDFLoader(tmp_path)
+    pages = loader.load()  #returns a list of Document objects
+
+    text = "\n\n".join([page.page_content for page in pages]).strip()
+
+    if not text:
+        return {"message": "No text detected within the provided file."}
+
+    if len(text.replace("\n", "")) <= 100:
+        return {"message": "Too little meaningful information within the provided file."}
+
+    result = await estimate_research_time(text, deadline)
+    return result
+
+@sio.event
+async def connect(sid, environ, auth):
+    token = auth.get("token")
+    if not token:
+        return False  #Reject the connection if no token is provided   
+    try:
+        payload = await verify_token(token)
+
+        user_id = payload.get("user_id")
+        username = payload.get("username")
+        email = payload.get("email")
+        role = payload.get("role")
+
+        user = UserModel.objects(user_id=user_id).first()
+        if not user or user.username != username or user.email != email or user.role != role:
+            print("Client does not exist.")
+            return False
+        
+        uid_to_sid[user_id] = sid
+        print("--- NEW USER CONNECTED ---", username)
+        await sio.save_session(sid, {"user_id": user_id, "username": username, "email": email, "role": role})
+        return True
+    except ValueError as e:
+        print("Client connection failed.")
+        return False  #Reject the connection on token verification failure
+
+@sio.event
+async def disconnect(sid):
+    #no token checking because connect requires token
+    session = await sio.get_session(sid)
+    user_id = session["user_id"]
+    if user_id in uid_to_sid:
+        print ("--- USER DISCONNECTED ---", session["username"])
+        del uid_to_sid[user_id]
+
+@sio.event #data includese recipient_id, recipient_role, content, conversation_id (optional)
+async def client_send_message(sid, data):
+    session = await sio.get_session(sid)
+    recipient_role = data.get("recipient_role")
+    conversation_id = data.get("conversation_id")
+    try:
+        user_id = session["user_id"]
+
+        user = UserModel.objects(user_id=user_id).first()
+        if not user:
+            raise ValueError(f"User with ID {user_id} does not exist.")
+        
+        conversation = None
+        if conversation_id:
+            conversation = ConversationModel.objects(conversation_id=conversation_id).first()
+        if not conversation:
+            if recipient_role == "AI":
+                conversation = ConversationModel.create_ai_conversation(user_id)
+                conversation.save()
+            else:
+                recipient_id = data.get("recipient_id")
+                (host_id, attendee_id) = (user_id, recipient_id) if session["role"] == "Counsellor" else (recipient_id, user_id)
+                conversation = ConversationModel.create_user_conversation(host_id, attendee_id)
+                conversation.save()
+                await sio.emit("new_conversation", {
+                    "other_user_id": recipient_id,
+                    "other_username": conversation.host.username if session["role"] == "Student" else conversation.attendee.username,
+                    "other_email": conversation.host.email if session["role"] == "Student" else conversation.attendee.email,
+                    "other_role": recipient_role, 
+                    "conversation_id": str(conversation.conversation_id),
+                    "last_sender_id": user_id,
+                    "last_message_content": data.get("content")
+                }, to=uid_to_sid[user_id])
+
+                if (recipient_id in uid_to_sid):
+                    recipient_sid = uid_to_sid[recipient_id]
+                    await sio.emit("new_conversation", {
+                        "other_user_id": user_id,
+                        "other_username": user.username,
+                        "other_email": user.email,
+                        "other_role": session["role"],
+                        "conversation_id": str(conversation.conversation_id),
+                        "last_sender_id": user_id,
+                        "last_message_content": data.get("content")
+                    }, to=recipient_sid)
+
+        conversation.set_last_message(user_id, data.get("content"))
+        MessageModel(
+            in_conversation_id=str(conversation.conversation_id),
+            sender_id=user_id,
+            content=data.get("content")
+        ).save()
+        # Handle AI response if recipient is AI
+        if recipient_role == "AI":
+            msg_queryset = MessageModel.objects(in_conversation_id=conversation.conversation_id).order_by("-created_at").limit(10)
+            msg_list = []
+            for msg in msg_queryset:
+                msg_list.append(("user" if msg.sender_id == user_id else "assistant", msg.content))
+
+            inputs = {"messages": msg_list[::-1], "user_id": user_id}  # Reverse to maintain chronological order
+            ai_msg = ""
+            async for event in agent.astream(inputs, {"configurable": {"thread_id": str(conversation.conversation_id), "user_id": user_id}}, stream_mode="values"):
+                if "messages" not in event:
+                    continue  # skip state-only events
+                last_message = event["messages"][-1]
+                if last_message.type == "ai":
+                    if isinstance(last_message.content, str):
+                        ai_msg += last_message.content
+
+            #Remove markdown code blocks
+            ai_msg = re.sub(r"```.*?```", "", ai_msg, flags=re.DOTALL)
+            ai_msg = re.sub(r"[#*_>`•\-]", "", ai_msg)
+            ai_msg = re.sub(r"\n{3,}", "\n\n", ai_msg).strip()
+            
+            MessageModel(
+                in_conversation_id=str(conversation.conversation_id),
+                content = ai_msg
+            ).save()
+
+            conversation.set_last_message("TheAIagent", ai_msg)
+            
+            await sio.emit("client_receive_message", {
+                "conversation_id": str(conversation.conversation_id),
+                "sender_id": "TheAIagent",
+                "content": ai_msg
+            }, to=sid)
+
+        # Forward message to recipient if not AI
+        else:
+            recipient_id = data.get("recipient_id")
+            recipient_sid = uid_to_sid.get(recipient_id)
+            if recipient_sid:
+                await sio.emit("client_receive_message", {
+                    "sender_id": user_id,
+                    "content": data.get("content")
+                }, to=recipient_sid)
+
+    except ValueError as e:
+        await sio.emit("error", {"error": str(e)}, to=sid)
+        print(e)
+        return
     
-    NewUser = UserModel.CreateUser(__Email, __PlainPassword)
-    NewUser.save()
+@sio.event
+async def start_new_thread(sid, data):
+    session = await sio.get_session(sid)
+    user_id = session["user_id"]
+    content = data.get("content")
+    if not user_id:
+        await sio.emit("error", {"error": "User not authenticated"}, to=sid)
+        return
 
-    return _JSonify({
-        "Message": "Registered",
-        "UserID": str(NewUser.UserID),
-        "Email": __Email,
-        "Role": "Student"
-    }), 200
+    conversation = ConversationModel.create_ai_conversation(user_id)
+    conversation.save()
 
-@App.post("/auth/login")
-@UnauthenticationRequired
-#   POST Body Template
-#   Email: Str
-#   PlainPassword: Str
-def AuthLogin():
-    __Data = _Request.get_json()
-    __Email = __Data.get("Email")
-    __PlainPassword = __Data.get("PlainPassword")
+    MessageModel(
+        in_conversation_id=str(conversation.conversation_id),
+        sender_id = user_id,
+        content= content
+    ).save()
 
-    # lấy User tương ứng với Email đang Login
-    LoginUser = UserModel.objects(Email=__Email).first()
-    # Nếu không tồn tại User trong Database thì gửi về Message không tồn tại tài khoản
-    if not LoginUser:
-        return _JSonify({"Message": "Recipient Does Not Exist"}), 401
-    # So sánh mật khẩu nếu không trùng khớp thì trả về lỗi sai mật khẩu
-    if not LoginUser.CheckUserPassword(__PlainPassword):
-        return _JSonify({"Message": "Wrong  Password"}), 401
+    msg_list = [("user", content)]        
+    inputs = {"messages": msg_list, "user_id": user_id}
+    ai_msg = ""
+    async for event in agent.astream(inputs, {"configurable": {"thread_id": str(conversation.conversation_id), "user_id": user_id}}, stream_mode="values"):
+        if "messages" not in event:
+            continue  # skip state-only events
+        last_message = event["messages"][-1]
+        if last_message.type == "ai":
+            if isinstance(last_message.content, str):
+                ai_msg += last_message.content
+
+    #Remove markdown code blocks
+    ai_msg = re.sub(r"```.*?```", "", ai_msg, flags=re.DOTALL)
+    ai_msg = re.sub(r"[#*_>`•\-]", "", ai_msg)
+    ai_msg = re.sub(r"\n{3,}", "\n\n", ai_msg).strip()
+
+    MessageModel(
+        in_conversation_id=str(conversation.conversation_id),
+        content = ai_msg
+    ).save()
+
+    conversation.set_last_message("TheAIagent", ai_msg)
+
+    iso_dt = conversation.created_at.isoformat()
+    dt = datetime.fromisoformat(iso_dt)
+    dt = dt.astimezone(timezone(timedelta(hours=data.get("time_offset"))))
+    formatted = dt.strftime("%H:%M %d/%m/%Y")
+
+    await sio.emit("thread_created", {
+        "conversation_id": str(conversation.conversation_id),
+        "content": ai_msg,
+        "created_at": formatted
+    }, to=sid)
+
+@sio.event
+async def summarize_conversation(sid, data):
+    user_id = data.get("target_user_id")
+    conversation_id = data.get("target_conversation_id")
+    if not user_id or not conversation_id:
+        raise ValueError("Missing ID")
+    result = await summarizer(user_id, conversation_id)
+    await sio.emit("summarized_conversation", result ,to=sid)
+
     
-    # Nếu tát cả điều kiện trên thỏa mãn thì đăng nhập thành công, lưu phiên đăng nhập vào Database
-    _Session["UserID"] = str(LoginUser.UserID)
-    _Session["Email"] = __Email
-    _Session["Role"] = LoginUser.Role
-    _Session.permanent = True
 
-    return _JSonify({
-        "Message": "Logged In",
-        "UserID": str(LoginUser.UserID),
-        "Email": __Email,
-        "Role": LoginUser.Role
-    }), 200
-
-@App.post("/auth/logout")
-@AuthenticationRequired
-def AuthLogout():
-    _Session.clear()
-    return _JSonify({
-        "Message": "Logged Out",
-    }), 200
-
-@App.get("/auth/me")
-@AuthenticationRequired
-def AuthMe():
-    return _JSonify({
-        "UserID": _Session["UserID"],
-        "Email": _Session["Email"],
-        "Role": _Session["Role"]
-    }), 200
-
-if __name__ == "__main__":
-    _Port = int(OS.environ.get("PORT", 5000))
-    App.run(host="0.0.0.0", debug=False, port=_Port)
+if __name__ == '__main__':
+    uvicorn.run(sio_app, host="localhost", port=8000)

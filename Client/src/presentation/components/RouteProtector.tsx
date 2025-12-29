@@ -4,7 +4,7 @@ import { useAuth } from "@/app/providers/AuthProvider";
 
 export default function RouteProtector({ children }: { children: JSX.Element }) {
   const { user, loading } = useAuth();
-
+  console.log(user)
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -13,5 +13,6 @@ export default function RouteProtector({ children }: { children: JSX.Element }) 
     return children;
   }
 
-  return <Navigate to="/login" replace />;
+  return children;
+  //return <Navigate to="/login" replace />;
 }

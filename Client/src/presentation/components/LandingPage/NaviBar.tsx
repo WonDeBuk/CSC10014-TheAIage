@@ -2,10 +2,12 @@ import { useState } from "react";
 import logo from "@/assets/LandingPage/HeroSection/logo.png";
 import userIcon from "@/assets/LandingPage/HeroSection/userIcon.png";
 import { useAuth } from "@/app/providers/AuthProvider";
+import { useNavigate } from "react-router-dom";
 
 export default function NavBar() {
   const [open, setOpen] = useState(false);
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div className="fixed inset-x-0 top-4 z-50 flex justify-center">
@@ -152,14 +154,13 @@ export default function NavBar() {
               )}
 
               {user && (
-              <div className="flex flex-col items-center gap-2">
-                <a href="/dashboard" className="flex items-center gap-2">
-                    <img
-                      src={userIcon}
-                      alt="userIcon"
-                      className="h-8 sm:h-10 md:h-12"
-                    />
-                  </a>
+              <div className="flex flex-col items-center gap-2" onClick={() => navigate('/dashboard')}>
+                  <img
+                    src={userIcon}
+                    alt="userIcon"
+                    className="h-8 sm:h-10 md:h-12"
+                  />
+                  
               </div>
             )}
             </div>

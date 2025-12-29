@@ -68,7 +68,9 @@ export default function CounselorCardsSection() {
 
   return (
     <>
-      <NavBar />
+      <div className="mb-10">
+      <NavBar/>
+      </div>
 
       <section className="py-16 px-6" style={{ backgroundColor: "#f8fafc" }}>
         <div className="max-w-6xl mx-auto">
