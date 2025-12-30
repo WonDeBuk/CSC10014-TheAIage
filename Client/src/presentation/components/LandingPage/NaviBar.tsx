@@ -4,13 +4,13 @@ import userIcon from "@/assets/LandingPage/HeroSection/userIcon.png";
 import { useAuth } from "@/app/providers/AuthProvider";
 import { useNavigate } from "react-router-dom";
 
-export default function NavBar() {
+export default function NavBar({ isStatic = false }: { isStatic?: boolean }) {
   const [open, setOpen] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
 
   return (
-    <div className="fixed inset-x-0 top-4 z-50 flex justify-center">
+    <div className={`${isStatic ? 'w-full' : 'fixed inset-x-0 top-4'} z-50 flex justify-center`}>
       <nav
         className="
           inline-flex items-center justify-between gap-8
@@ -53,6 +53,15 @@ export default function NavBar() {
                           underline-offset-4"
               >
                 Counsellors
+              </a>
+
+              <a
+                href="/study"
+                className="inline-block font-medium 
+                          text-black hover:underline 
+                          underline-offset-4 text-center leading-tight"
+              >
+                Focus
               </a>
 
               {/* Only show Login / Sign Up when not logged in */}
@@ -130,6 +139,15 @@ export default function NavBar() {
                 Counsellors
               </a>
 
+              <a
+                href="/study"
+                className="inline-block font-medium 
+                          text-black hover:underline 
+                          underline-offset-4 text-center"
+              >
+                Focus
+              </a>
+
               {/* Mobile: also only shows Login / Sign Up when not logged in */}
               {!user && (
                 <>
@@ -154,15 +172,15 @@ export default function NavBar() {
               )}
 
               {user && (
-              <div className="flex flex-col items-center gap-2" onClick={() => navigate('/dashboard')}>
+                <div className="flex flex-col items-center gap-2" onClick={() => navigate('/dashboard')}>
                   <img
                     src={userIcon}
                     alt="userIcon"
                     className="h-8 sm:h-10 md:h-12"
                   />
-                  
-              </div>
-            )}
+
+                </div>
+              )}
             </div>
           </div>
         </div>
