@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter
-from database import UserModel, ConversationModel, MessageModel
+from database import UserModel, ConversationModel, MessageModel, SummaryModel
 from fastapi import Depends, HTTPException
 from util.token import auth_verifier
 from typing import Any
+from helper.summarizer import summarizer
 
 chat_router = APIRouter(prefix="/chat", tags=["chat"])
 
@@ -115,3 +116,44 @@ async def get_ai_message_list(conversation_id: str, payload=Depends(auth_verifie
         })
 
     return messages[::-1]
+
+@chat_router.get("/summarize/{user_id}")
+async def get_summarized_log(user_id: str, payload=Depends(auth_verifier)):
+    if not payload:
+        raise HTTPException(status_code=401, detail="Unverified user.")
+    
+    if not UserModel.objects(user_id=user_id).first():
+        print()
+        raise HTTPException(status_code=404, detail="User not found.")
+
+    td = datetime.now(timezone.utc)
+
+    cached = SummaryModel.objects(user_id=user_id).order_by("-created_at").first()
+    if cached:
+        if cached.created_at.tzinfo is None:
+            cached.created_at = cached.created_at.replace(tzinfo=timezone.utc)
+
+        if td - cached.created_at <= timedelta(hours=12):
+            return {
+                "summary": cached.summary,
+                "key_points": cached.key_points,
+                "emotions_detected": cached.emotions_detected,
+                "important_details": cached.important_details,
+                "next_steps": cached.next_steps
+            }
+
+    conversations = ConversationModel.objects(attendee__user_id=user_id,host__role="AI").first()
+    if not conversations:
+        raise HTTPException(status_code=404, detail="Conversation not found.")
+
+    result = await summarizer(user_id)
+    SummaryModel(
+        user_id=user_id,
+        summary=result["summary"],
+        key_points=result["key_points"],
+        emotions_detected=result["emotions_detected"],
+        important_details=result["important_details"],
+        next_steps=result["next_steps"]
+    ).save()
+    return result
+    

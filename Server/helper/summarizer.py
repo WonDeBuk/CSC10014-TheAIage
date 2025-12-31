@@ -2,7 +2,7 @@ from langchain_google_genai import GoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import JsonOutputParser
 from pydantic import BaseModel, Field
-from database import UserModel, MessageModel
+from database import UserModel, MessageModel, ConversationModel
 from typing import List
 from rag.config import GOOGLE_API_KEY
 
@@ -25,7 +25,7 @@ class ConversationSummary(BaseModel):
     )
     next_steps: List[str] = Field(
         default_factory=list,
-        description="Các hành động được đề xuất hoặc các bước tiếp theo nếu có liên quan."
+        description="Các hành động được đề xuất hoặc các bước tiếp theo nếu có liên quan mà người có vai trò là tư vấn viên cần làm."
     )
 
 
@@ -75,23 +75,21 @@ Chỉ trả về JSON.
 
 chain = prompt | llm | parser
 
-async def summarizer(user_id, conversation_id):
+async def summarizer(user_id):
     user = UserModel.objects(user_id=user_id).first()
     if not user:
         raise ValueError(f"{user_id} is not a valid UserID")
 
-    if not conversation_id:
-        raise ValueError(f"{conversation_id} is not a valid ConversationID")
-
-    conversation_messages = (
-        MessageModel.objects(in_conversation_id=conversation_id)
-        .order_by("created_at")
-    )
+    conversations = ConversationModel.objects(attendee__user_id=user_id,host__role="AI").order_by("updated_at").limit(3)
 
     transcript_text = ""
-    for msg in conversation_messages:
-        sender = "User" if msg.sender_id != "TheAIagent" else "AI"
-        transcript_text += f"{sender}: {msg.content}\n"
+    for conv in conversations:
+        transcript_text += f"From: {conv.created_at.isoformat()} to: {conv.updated_at.isoformat()}\n"
+        conversation_messages = MessageModel.objects(in_conversation_id=conv.conversation_id).order_by("-created_at")
+        for msg in conversation_messages:
+            sender = "User" if msg.sender_id != "TheAIagent" else "AI"
+            transcript_text += f"{sender}: {msg.content}\n"
+        transcript_text += "\n"
 
     result = await chain.ainvoke({
         "transcript": transcript_text,
