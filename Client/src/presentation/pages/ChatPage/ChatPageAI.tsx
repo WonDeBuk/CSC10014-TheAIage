@@ -177,16 +177,106 @@ export default function ChatPageAI() {
       <div className="bg-black/20 h-full w-[120px] rounded-2xl flex flex-col items-center justify-between gap-10 p-8">
         <div className="bg-blue-50 h-20 w-20 rounded-full"></div>
 
-        <div className="w-full flex-1 rounded-2xl">
-          <div className="w-full h-auto flex flex-col items-center gap-5 *:flex *:justify-center *:items-center *:text-white">
-            <div
-              onClick={() => navigate("/chat")}
-              className="w-[50px] h-[50px] group :hover:w-[80px] :hover:h-[80px] transition-all duration-200 "
-            >
-              <MessageCircleMore
-                size={30}
-                className="group-hover:scale-150 transition-transform duration-200"
-              />
+        newSocket.on("connect_error", (err) => {
+            console.error("Connection error:", err);
+        });
+
+        newSocket.on("client_receive_message", (data) => {
+            if (data.conversation_id === targetFind) {
+                setMsgList(prev => [...prev, {
+                    sender_id: "TheAIagent",
+                    content: data.content
+                }])
+            }
+            
+            setthreadList((prev) => {
+                const index = prev.findIndex(t => t.conversation_id === data.conversation_id)
+                if (index !== -1) {
+                    const next = [...prev]
+                    next[index] = {
+                        ...next[index],
+                        last_sender_id: "TheAIagent",
+                        last_message_content: data.content
+                    }
+                    return next
+                }
+                return prev
+            })
+        });
+
+        newSocket.on("thread_created", (data) => {
+            setTargetFind(data.conversation_id);
+            setthreadList((prev) => [{created_at: data.created_at, conversation_id: data.conversation_id, last_sender_id: "TheAIagent", last_message_content: data.content}, ...prev])
+            navigate(`/chatai?thread=${data.conversation_id}`);
+        });
+
+        const fetchConversations = async () => {
+            try {
+                const list = await AxiosInstance.get(`/chat/conversation/ai/${-new Date().getTimezoneOffset() / 60}`)
+                setthreadList(list.data)
+                console.log(list.data)
+            }
+            catch (e: any) {
+                console.log(e)
+            }
+        }
+
+        fetchConversations()
+        if (targetFind) fetchMessages()
+        setSocket(newSocket);
+
+        return () => {
+            if (socket) {
+                socket.disconnect();
+                socket.removeAllListeners();
+            }
+        }
+    }, [])
+
+    useEffect(() => {
+        if (targetFind) fetchMessages()
+    }, [targetFind])
+
+    useEffect(() => {
+        if (targetFind) {
+            const index = threadList.findIndex(t => t.conversation_id === targetFind)
+            if (index !== -1) {
+                if (threadList[index].last_sender_id !== "TheAIagent") {
+                    setIsResponding(true)
+                }
+                else setIsResponding(false)
+            }
+        }
+
+        if (lastMsg) lastMsg.current?.scrollIntoView()
+    }, [msgList])
+
+    useEffect(() => {
+        if (!localStorage.getItem("token")) {
+            navigate("/login")
+            return
+        }        
+        if (user && user.role === "Counsellor") {
+            navigate("/chat")
+            return
+        }
+    }, [user])
+
+    return (
+        <div className={`hero-bg h-full w-full fixed flex items-center gap-7 p-5`}>
+            <div className="bg-black/20 h-full w-[120px] rounded-2xl flex flex-col items-center justify-between gap-10 p-8">
+                <div className="bg-blue-50 h-20 w-20 rounded-full"></div>
+
+                <div className="w-full flex-1 rounded-2xl">
+                    <div className="w-full h-auto flex flex-col items-center gap-5 *:flex *:justify-center *:items-center *:text-white">
+                        <div onClick={() => navigate("/chat")} className="w-[50px] h-[50px] group :hover:w-[80px] :hover:h-[80px] transition-all duration-200 "><MessageCircleMore size={30} className="group-hover:scale-150 transition-transform duration-200" /></div>
+                        <div className="w-20 h-20 items-center rounded-full outline-white outline-2"><Bot size={45} className="group-hover:scale-150 transition-transform duration-200" /></div>
+                        <div onClick={() => navigate("/counsellors")} className="w-[50px] h-[50px] group :hover:w-[80px] :hover:h-[80px] transition-all duration-200"><UserSearch size={30} className="group-hover:scale-150 transition-transform duration-200" /></div>
+                        <div className="w-[50px] h-[50px] group :hover:w-[80px] :hover:h-[80px] transition-all duration-200"><CalendarFold size={30} className="group-hover:scale-150 transition-transform duration-200" /></div>
+                    </div>
+                </div>
+
+                <div className="hover:scale-130 transition-transform duration-200 hover:border-b-3 border-white" onClick={() => { navigate('/') }}><LogOut size={50} strokeWidth={1.5} className="text-white" /></div>
             </div>
             <div className="w-20 h-20 items-center rounded-full outline-white outline-2">
               <Bot
