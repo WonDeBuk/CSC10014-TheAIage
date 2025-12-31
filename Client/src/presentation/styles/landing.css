@@ -1,0 +1,137 @@
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up { animation: fadeInUp .8s ease-out forwards; }
+
+.feature-card { transition: transform .3s ease, box-shadow .3s ease; }
+.feature-card:hover { transform: translateY(20px); }
+
+.cta-button { transition: all .3s ease; }
+.cta-button:hover { transform: scale(1.05); }
+
+@keyframes heroSlideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes heroFloat {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-10px);
+  }
+}
+
+.hero-motion-title {
+  animation: heroSlideInLeft 0.8s ease-out both;
+}
+
+.hero-motion-subtitle {
+  animation: fadeInUp 0.9s ease-out both;
+  animation-delay: 0.15s;
+}
+
+.hero-motion-button {
+  animation: fadeInUp 0.9s ease-out both;
+  animation-delay: 0.3s;
+}
+
+.hero-motion-image {
+  animation:
+    fadeInUp 0.9s ease-out both,
+    heroFloat 4s ease-in-out 0.9s infinite alternate;
+}
+
+@keyframes cardFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card-motion {
+  animation: cardFadeUp 0.7s ease-out both;
+}
+
+.js-scroll-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+@keyframes scrollFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.js-scroll-reveal.is-visible {
+  animation: scrollFadeUp 0.7s ease-out forwards;
+}
+
+.scroll-animate {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.scroll-animate.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  animation: scrollFadeUp 0.6s ease-out;
+}
+
+@keyframes scrollFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reveal-char {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.reveal-char.animate {
+  animation: charFadeIn 0.3s forwards;
+}
+
+@keyframes charFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-bg {
+  background:
+    radial-gradient(circle at 0% 0%, rgba(255, 169, 213, 0.65), transparent 60%),
+    radial-gradient(circle at 100% 0%, rgba(187, 194, 252, 0.65), transparent 60%),
+    radial-gradient(circle at 0% 100%, rgba(173, 251, 240, 0.55), transparent 60%),
+    radial-gradient(circle at 100% 100%, rgba(255, 237, 192, 0.55), transparent 60%),
+    linear-gradient(135deg, #f9fafb, #e5e7eb);
+}

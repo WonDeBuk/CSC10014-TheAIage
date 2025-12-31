@@ -1,0 +1,1 @@
+"""The AI tools provided for the frontend"""
