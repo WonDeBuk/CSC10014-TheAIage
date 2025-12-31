@@ -43,3 +43,6 @@ node_modules/
 .vscode/
 .idea/
 .DS_Store
+Server/data/embeddings/chroma_db/chroma.sqlite3
+Server/data/embeddings/chroma_db/chroma.sqlite3
+Server/data/embeddings/chroma_db/a2658b92-8678-4778-9d94-3528ae81aa13/data_level0.bin
