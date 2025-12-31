@@ -65,7 +65,6 @@ export default function ChatPageAI() {
         });
 
         newSocket.on("client_receive_message", (data) => {
-            console.log("received news: ", data, targetFind)
             if (data.conversation_id === targetFind) {
                 setMsgList(prev => [...prev, {
                     sender_id: "TheAIagent",

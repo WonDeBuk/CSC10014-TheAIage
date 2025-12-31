@@ -253,8 +253,5 @@ async def start_new_thread(sid, data):
         "created_at": formatted
     }, to=sid)
 
-
-    
-
 if __name__ == '__main__':
     uvicorn.run(sio_app, host="localhost", port=8000)

@@ -97,6 +97,7 @@ export default function ChatPage() {
                 sender_id: data.sender_id,
                 content: data.content
             }
+            console.log(data, "but user is in: ", targetUser?.user_id || "")
 
             if (targetUser && targetUser.user_id === data.sender_id) setMsgList(prev => [...prev, newMessage])
             setConvList(prev => {
@@ -109,22 +110,10 @@ export default function ChatPage() {
                 return [conv, ...copy];
 
             });
-
-            if (searchQuery !== "") {
-                const filtered: conversation[] = convList.filter(conv =>
-                    conv.other_username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    conv.other_email.toLowerCase().includes(searchQuery.toLowerCase()))
-                setFilteredConvList(filtered)
-            }
-            else setFilteredConvList(convList)
         });
 
         newSocket.on("new_conversation", (data) => {
             setConvList(prev => [data, ...prev])
-            if (searchQuery === "" || data.other_username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                data.other_email.toLowerCase().includes(searchQuery.toLowerCase())) {
-                setFilteredConvList(prev => [data, ...prev])
-            }
             if (targetFind === data.other_email) {
                 const newPayload = {
                     user_id: data.other_user_id,
@@ -141,13 +130,6 @@ export default function ChatPage() {
             try {
                 const list = await AxiosInstance.get("/chat/conversation/human")
                 setConvList(list.data)
-                if (searchQuery !== "") {
-                    const filtered: conversation[] = convList.filter(conv =>
-                        conv.other_username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        conv.other_email.toLowerCase().includes(searchQuery.toLowerCase()))
-                    setFilteredConvList(filtered)
-                }
-                else setFilteredConvList(list.data)
             }
             catch (e: any) {
                 console.log(e)
@@ -180,68 +162,80 @@ export default function ChatPage() {
                 return;
             }
         }
-
-        fetchMessages()
         if (!targetUser) fetchTargetUser() //new conversation case, as in the conversation does not exist yet
     }, [targetFind])
+
+    useEffect(() => {
+        if (targetUser) fetchMessages()
+    }, [targetUser])
 
     useEffect(() => {
         if (lastMsg.current) lastMsg.current.scrollIntoView()
     }, [msgList])
 
+    useEffect(() => {
+        if (searchQuery !== "") {
+            const filtered: conversation[] = convList.filter(conv =>
+                conv.other_username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                conv.other_email.toLowerCase().includes(searchQuery.toLowerCase()))
+            setFilteredConvList(filtered)
+        }
+        else setFilteredConvList(convList)
+    }, [convList, searchQuery])
+
     return (
         <div className="hero-bg h-full w-full flex items-center gap-7 p-5 relative overflow-hidden">
             {isPopup ? <>
                 <div className="bg-black/20 w-full h-full absolute scale-200"
-                onClick={() => (setIsPopup(false))}></div>
+                    onClick={() => (setIsPopup(false))}></div>
                 <div className="w-[1200px] h-[800px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 absolute bg-white rounded-2xl flex flex-col p-3">
                     <div className="w-full h-[70px] flex flex-col items-center justify-start">
                         <div className="w-full flex-1 flex items-start justify-end"><X size={60} strokeWidth={1.6} className="hover:scale-150 transition-transform duration-150"
-                        onClick={() => setIsPopup(false)}/></div>
+                            onClick={() => setIsPopup(false)} /></div>
                         <div className="w-full h-0.5 bg-gray-200"></div>
                     </div>
-                 
-                    {recap ? 
-                    <div className="flex flex-col items-start overflow-y-scroll overflow-x-hidden px-3 gap-10 py-5">
-                        <div>
-                            <p className="text-[30px] font-bold">TÓM TẮT:</p>
-                            <p className="text-[18px]">{recap.summary}</p>
-                        </div>
-                        
-                        <div>
-                            <p className="text-[30px] font-bold">ĐIỂM CHÍNH:</p>
-                            <ul className="list-disc pl-6 space-y-2">
-                                {recap.key_points.map((k, index) => 
-                                    <li className="w-full text-[18px] whitespace-pre-wrap">{k}</li>
-                                )}
-                            </ul>
-                        </div>
 
-                        <div>
-                            <p className="text-[30px] font-bold">QUAN TRỌNG:</p>
-                            <ul className="list-disc pl-6 space-y-2">
-                                {recap.important_details.map((k, index) => 
-                                    <li className="w-full text-[18px] whitespace-pre-wrap">{k}</li>
-                                )}
-                            </ul>
-                        </div>
+                    {recap ?
+                        <div className="flex flex-col items-start overflow-y-scroll overflow-x-hidden px-3 gap-10 py-5">
+                            <div>
+                                <p className="text-[30px] font-bold">TÓM TẮT:</p>
+                                <p className="text-[18px]">{recap.summary}</p>
+                            </div>
 
-                        <div>
-                            <p className="text-[30px] font-bold">CẢM XÚC:</p>
-                            <p className="text-[18px]">{recap.emotions_detected}</p>
-                            
-                        </div>
+                            <div>
+                                <p className="text-[30px] font-bold">ĐIỂM CHÍNH:</p>
+                                <ul className="list-disc pl-6 space-y-2">
+                                    {recap.key_points.map((k, index) =>
+                                        <li className="w-full text-[18px] whitespace-pre-wrap">{k}</li>
+                                    )}
+                                </ul>
+                            </div>
 
-                        <div>
-                            <p className="text-[30px] font-bold">GỢI Ý:</p>
-                            <ul className="list-disc pl-6 space-y-2">
-                                {recap.next_steps.map((k, index) => 
-                                    <li className="w-full text-[18px] whitespace-pre-wrap">{k}</li>
-                                )}
-                            </ul>
+                            <div>
+                                <p className="text-[30px] font-bold">QUAN TRỌNG:</p>
+                                <ul className="list-disc pl-6 space-y-2">
+                                    {recap.important_details.map((k, index) =>
+                                        <li className="w-full text-[18px] whitespace-pre-wrap">{k}</li>
+                                    )}
+                                </ul>
+                            </div>
+
+                            <div>
+                                <p className="text-[30px] font-bold">CẢM XÚC:</p>
+                                <p className="text-[18px]">{recap.emotions_detected}</p>
+
+                            </div>
+
+                            <div>
+                                <p className="text-[30px] font-bold">GỢI Ý:</p>
+                                <ul className="list-disc pl-6 space-y-2">
+                                    {recap.next_steps.map((k, index) =>
+                                        <li className="w-full text-[18px] whitespace-pre-wrap">{k}</li>
+                                    )}
+                                </ul>
+                            </div>
                         </div>
-                    </div>
-                    : <></>}
+                        : <></>}
                 </div>
             </> : <></>}
             <div className="bg-black/30 h-full w-[120px] rounded-2xl flex flex-col items-center justify-between gap-10 p-8">
@@ -251,11 +245,11 @@ export default function ChatPage() {
                     <div className="w-full h-auto flex flex-col items-center gap-5 *:flex *:justify-center *:items-center *:text-white">
                         <div className="w-20 h-20 items-center rounded-full outline-white outline-2"><MessageCircleMore size={45} /></div>
                         {user?.role === "Student" ?
-                        <>
-                            <div onClick={() => navigate("/chatai")} className="w-[50px] h-[50px] group :hover:w-[80px] :hover:h-[80px] transition-all duration-200"><Bot size={30} className="group-hover:scale-150 transition-transform duration-200" /></div>
-                            <div onClick={() => navigate("/counsellors")} className="w-[50px] h-[50px] group :hover:w-[80px] :hover:h-[80px] transition-all duration-200"><UserSearch size={30} className="group-hover:scale-150 transition-transform duration-200" /></div>
-                        </>
-                        : <></>}
+                            <>
+                                <div onClick={() => navigate("/chatai")} className="w-[50px] h-[50px] group :hover:w-[80px] :hover:h-[80px] transition-all duration-200"><Bot size={30} className="group-hover:scale-150 transition-transform duration-200" /></div>
+                                <div onClick={() => navigate("/counsellors")} className="w-[50px] h-[50px] group :hover:w-[80px] :hover:h-[80px] transition-all duration-200"><UserSearch size={30} className="group-hover:scale-150 transition-transform duration-200" /></div>
+                            </>
+                            : <></>}
                         <div className="w-[50px] h-[50px] group :hover:w-[80px] :hover:h-[80px] transition-all duration-200"><CalendarFold size={30} className="group-hover:scale-150 transition-transform duration-200" /></div>
                     </div>
                 </div>
@@ -271,11 +265,6 @@ export default function ChatPage() {
                         ref={searchArea} value={searchQuery}
                         onChange={(e) => {
                             setSearchQuery(e.target.value)
-                            const filtered = convList.filter(conv =>
-                                conv.other_username.toLowerCase().includes(e.target.value.toLowerCase()) ||
-                                conv.other_email.toLowerCase().includes(e.target.value.toLowerCase())
-                            )
-                            setFilteredConvList(filtered)
                         }}
                         onKeyDown={(e) => {
                             if (e.key === "Enter") {
@@ -335,18 +324,18 @@ export default function ChatPage() {
                                 <p className="text-[20px] font-light">{targetUser.email}</p>
                             </div>
                             {user?.role === "Counsellor" ?
-                            <div className="w-[90px] h-[90px] flex justify-center items-center hover:scale-120 transition-transform duration-100"
-                                onClick={async () => {
-                                    try {
-                                        setIsPopup(true)
-                                        const res = await AxiosInstance.get(`/chat/summarize/${targetUser.user_id}`)
-                                        setRecap(res.data)
-                                    }
-                                    catch (e: any) {
-                                        console.log(e.response)
-                                    }
-                                }}><Info size={60} strokeWidth={1.2} className="text-blue-700" /></div>
-                            : <></> }
+                                <div className="w-[90px] h-[90px] flex justify-center items-center hover:scale-120 transition-transform duration-100"
+                                    onClick={async () => {
+                                        try {
+                                            setIsPopup(true)
+                                            const res = await AxiosInstance.get(`/chat/summarize/${targetUser.user_id}`)
+                                            setRecap(res.data)
+                                        }
+                                        catch (e: any) {
+                                            console.log(e.response)
+                                        }
+                                    }}><Info size={60} strokeWidth={1.2} className="text-blue-700" /></div>
+                                : <></>}
                         </div>
                     </div>
 
@@ -354,7 +343,7 @@ export default function ChatPage() {
                         {msgList.length ? (
                             msgList.map((msg, index) =>
                                 <div key={index} className={`flex text-[15px] text-white items-center w-full ${msg.sender_id === user?.user_id ? "justify-end" : "justify-start"}`}
-                                ref={index === msgList.length - 1 ? lastMsg : null}>
+                                    ref={index === msgList.length - 1 ? lastMsg : null}>
                                     <div className={`text-left max-w-2/3 p-3 rounded-2xl text-[18px] whitespace-pre-wrap ${msg.sender_id === user?.user_id ? "bg-blue-500" : "bg-gray-500"}`}>{msg.content}</div>
                                 </div>
                             )
@@ -398,13 +387,6 @@ export default function ChatPage() {
                                             return [conv, ...copy];
                                         })
 
-                                        if (searchQuery !== "") {
-                                            const filtered: conversation[] = convList.filter(conv =>
-                                                conv.other_username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                                                conv.other_email.toLowerCase().includes(searchQuery.toLowerCase()))
-                                            setFilteredConvList(filtered)
-                                        }
-                                        else setFilteredConvList(convList)
 
                                         socket.emit("client_send_message", {
                                             recipient_id: targetUser.user_id,
