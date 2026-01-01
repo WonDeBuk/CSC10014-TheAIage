@@ -241,9 +241,11 @@ async def start_new_thread(sid, data):
     ).save()
 
     conversation.set_last_message("TheAIagent", ai_msg)
+    dt = conversation.created_at
 
-    iso_dt = conversation.created_at.isoformat()
-    dt = datetime.fromisoformat(iso_dt)
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+
     dt = dt.astimezone(timezone(timedelta(hours=data.get("time_offset"))))
     formatted = dt.strftime("%H:%M %d/%m/%Y")
 

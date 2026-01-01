@@ -241,12 +241,14 @@ export default function ChatPageAI() {
         if (targetFind) {
             const index = threadList.findIndex(t => t.conversation_id === targetFind)
             if (index !== -1) {
+                console.log(threadList[index])
                 if (threadList[index].last_sender_id !== "TheAIagent") {
                     setIsResponding(true)
                 }
                 else setIsResponding(false)
             }
         }
+        else console.log("yeah nah, it aint working boy")
 
         if (lastMsg) lastMsg.current?.scrollIntoView()
     }, [msgList])
@@ -284,22 +286,117 @@ export default function ChatPageAI() {
                 className="group-hover:scale-150 transition-transform duration-200"
               />
             </div>
-            <div
-              onClick={() => navigate("/counsellors")}
-              className="w-[50px] h-[50px] group :hover:w-[80px] :hover:h-[80px] transition-all duration-200"
-            >
-              <UserSearch
-                size={30}
-                className="group-hover:scale-150 transition-transform duration-200"
-              />
-            </div>
-            <div className="w-[50px] h-[50px] group :hover:w-[80px] :hover:h-[80px] transition-all duration-200">
-              <CalendarFold
-                size={30}
-                className="group-hover:scale-150 transition-transform duration-200"
-              />
-            </div>
-          </div>
+
+            {targetFind ? (
+                <div className="h-full w-[1200px] rounded-2xl flex flex-col gap-0">
+                    <div className="w-full h-[100px] flex flex-col gap-0 justify-center items-center">
+                        <div className="w-full flex-1 flex gap- items-center rounded-t-2xl px-6 gap-3">
+                            <div className="w-[90px] h-[90px] flex justify-center items-center"><Headset size={60} strokeWidth={1.0} className="text-pink-700" /></div>
+                            <div className="h-full flex items-center gap-0 text-left">
+                                <p className="text-[40px] font-light">TheAIage</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="w-full flex-1 flex flex-col overflow-y-auto overflow-x-hidden gap-5 px-5 py-3 border-t border-black">
+                        {msgList.length ? (
+                            msgList.map((msg, index) =>
+                                <div key={index} className={`flex text-[15px] text-white items-center w-full ${msg.sender_id === user?.user_id ? "justify-end" : "justify-start"}`}
+                                ref={index===msgList.length-1 ? lastMsg : null}>
+                                    <div className={`text-left max-w-2/3     p-3 rounded-2xl text-[18px] whitespace-pre-wrap ${msg.sender_id !== "TheAIagent" ? "bg-blue-500" : "bg-gray-500"}`}>{msg.content}</div>
+                                </div>
+                            )
+                        ) : (
+                            <></>
+                        )}
+                    </div>
+
+                    <div className={`w-full h-[120px] rounded-b-2xl px-5 py-2 ${isResponding ? "pointer-events-none" : ""}`}>
+                        <textarea className="w-full h-full text-[16px] rounded-2xl bg-white p-3 overflow-hidden"
+                            disabled={isResponding}
+                            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                                setMessageContent(e.target.value)
+                            }}
+                            onKeyDown={(e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+                                const rf = textArea.current
+                                if (!rf) return
+                                if (e.key === "Enter") {
+                                    e.preventDefault();
+                                    if (!e.shiftKey) {
+                                        if (messageContent.trim() === "") {
+                                            setMessageContent("");
+                                            return;
+                                        }
+                                        if (!socket) {
+                                            console.error("Socket not connected");
+                                            return;
+                                        }
+                                        const sent_msg: message = {
+                                            sender_id: user?.user_id || "",
+                                            content: messageContent
+                                        }
+                                        setMsgList(prev => [...prev, sent_msg])
+                                        setthreadList((prev) => {
+                                            const index = prev.findIndex(t => t.conversation_id === targetFind)
+                                            if (index !== -1) {
+                                                const next = [...prev]
+                                                next[index] = {
+                                                    ...next[index],
+                                                    last_sender_id: user?.user_id || "",
+                                                    last_message_content: messageContent
+                                                }
+                                                return next
+                                            }
+                                            return prev
+                                        })
+                                        socket.emit("client_send_message", {
+                                            recipient_id: "TheAIagent",
+                                            recipient_role: "AI",
+                                            content: messageContent,
+                                            conversation_id: targetFind
+                                        })
+                                        setMessageContent("")
+                                    }
+                                    else setMessageContent((prev) => prev + "\n");
+                                }
+                            }}
+                            ref={textArea} value={messageContent}
+                            placeholder="Trò chuyện ở đây."
+                        ></textarea>
+                    </div>
+                </div>
+            ) :
+            (
+                <div className="w-[1200px] flex flex-col justify-center items-center gap-1">
+                    <p className="text-[50px] text-gray-600 w-[800px] text-center font-[650] select-none">TheAIage chào bạn.</p>
+                    <p className="text-[30px] text-gray-400 w-[800px] text-center select-none">Hôm nay bạn cảm thấy như thế nào?</p>
+                    <div className="relative w-[800px]">
+                        <textarea
+                            disabled={isResponding}
+                            className="bg-white w-full h-[120px] text-[18px] rounded-lg p-5 resize-none
+                            outline-gray-300 focus:outline-blue-400 focus:outline-2"
+                            value={messageContent}
+                            onChange={(e) => setMessageContent(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (!socket) return
+                                if (e.key === "Enter" && !e.shiftKey) {
+                                    e.preventDefault()
+
+                                    setIsResponding(true)
+                                    socket.emit("start_new_thread", {content: messageContent, time_offset: -new Date().getTimezoneOffset() / 420})
+                                    setMessageContent("")
+                                }
+                            }}
+                        />
+
+                        {messageContent === "" && (
+                            <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-gray-400 text-[22px]">
+                                Trò chuyện ở đây.
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
 
         <div

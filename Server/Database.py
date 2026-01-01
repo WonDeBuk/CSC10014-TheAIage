@@ -139,14 +139,14 @@ class ActivityModel(Document):
         reverse_delete_rule=CASCADE
     )
 
-    spourt_level = IntField(required=True, default=1)
+    sprout_level = IntField(required=True, default=1)
     exp_count = IntField(required=True, default=0)
 
     login_check = BooleanField(default=False)
     diary_check = BooleanField(default=False)
-    deed_check = BooleanField(default=False)
+    mood_check = BooleanField(default=False)
 
-    day_created = DateField(default=lambda: datetime.now(timezone.utc).date())
+    day_created = StringField(required=True)
 
     study_session_count = IntField(default=0)
     finished_task_count = IntField(default=0)
@@ -157,6 +157,33 @@ class ActivityModel(Document):
         "indexes": [
             "user_id",
             "-day_created",
+        ]
+    }
+
+class QuestModel(Document):
+    quest_id = ObjectIdField(primary_key=True, default=ObjectId)
+
+    user_id = ReferenceField(
+        "UserModel",
+        required=True,
+        reverse_delete_rule=CASCADE       
+    )
+
+    login_quota = BooleanField(default=False)
+    diary_quota = BooleanField(default=False)
+    mood_quota = BooleanField(default=False)
+
+    day_created = StringField(required=True)
+
+    study_session_quota = IntField(default=0)
+    finished_task_quota = IntField(default=0)
+
+    meta = {
+        "db_alias": "AccountDB",
+        "collection": "Quests",
+        "indexes": [
+            "user_id",
+            "-day_created"
         ]
     }
 

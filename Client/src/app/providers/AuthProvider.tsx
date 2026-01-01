@@ -10,6 +10,7 @@ import {
 import AxiosInstance from "@/util/AxiosInstance";
 
 type User = {
+  date: string;
   username: string;
   user_id: string;
   email: string;
@@ -22,6 +23,7 @@ type AuthContextType = {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   refreshAuth: () => Promise<void>;
+  getLocalDate: () => string;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -31,34 +33,29 @@ const USER_CACHE_KEY = "auth_user_cache";
 const TOKEN_KEY = "token";
 
 // Get user from cache
-const getCachedUser = (): User | null => {
-  try {
-    const cached = localStorage.getItem(USER_CACHE_KEY);
-    return cached ? JSON.parse(cached) : null;
-  } catch (e) {
-    console.error("getCachedUser error:", e);
-    return null;
-  }
-};
-
-// Save user to cache
-const setCachedUser = (user: User | null) => {
-  if (user) localStorage.setItem(USER_CACHE_KEY, JSON.stringify(user));
-  else localStorage.removeItem(USER_CACHE_KEY);
-};
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => getCachedUser());
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   // prevent duplicate /auth/me calls
   const hasFetched = useRef(false);
+
+  const getLocalDate = () => {
+      const d = new Date();
+    return [
+      d.getFullYear(),
+      String(d.getMonth() + 1).padStart(2, "0"),
+      String(d.getDate()).padStart(2, "0"),
+    ].join("-");
+  }
 
   const fetchAuth = async () => {
     try {
       const res = await AxiosInstance.get("/auth/me");
       const data = res.data;
       const userData: User = {
+        date: getLocalDate(),
         username: data.username,
         user_id: data.user_id,
         email: data.email,
@@ -117,6 +114,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       logout,
       refreshAuth,
+      getLocalDate
     }),
     [user, loading]
   );
