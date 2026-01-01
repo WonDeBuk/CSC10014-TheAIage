@@ -182,9 +182,9 @@ export default function ChatPageAI() {
                     </div>
                 </div>
 
-                <div className="bg-white w-full flex-1 rounded-2xl">
+                <div className="bg-white w-full flex-1 rounded-md overflow-y-scroll overflow-x-hidden">
                     {threadList.length ? (
-                        <div className="flex flex-col gap-2 items-center overflow-y-scroll overflow-x-hidden h-full">
+                        <div className="flex flex-col gap-2 items-center h-full">
                             {threadList.map((thread, index) => 
                             <div className="w-full flex flex-col justify-start items-center gap-2 px-3 py-2">
                                 <div className={`w-full h-full flex flex-col justify-start items-center gap-1 hover:translate-x-1.5 hover:bg-gray-100 p-3 rounded-md transition-all duration-100 ${targetFind === thread.conversation_id ? "bg-gray-200" : ""}`}

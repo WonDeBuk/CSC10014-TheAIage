@@ -273,9 +273,9 @@ export default function ChatPage() {
                         }}></input>
                 </div>
 
-                <div className="bg-white w-full flex-1 rounded-2xl">
+                <div className="bg-white w-full flex-1 rounded-md overflow-y-scroll overflow-x-hidden">
                     {filteredConvList.length ? (
-                        <div className="flex flex-col gap-2 items-center overflow-y-scroll overflow-x-hidden h-full">
+                        <div className="flex flex-col gap-2 items-center h-full">
                             {filteredConvList.map((conv, index) =>
                                 <div className="w-full flex flex-col justify-start items-center gap-2 p-3"
                                     onClick={() => {
