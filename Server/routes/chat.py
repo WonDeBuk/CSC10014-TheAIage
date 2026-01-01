@@ -63,10 +63,14 @@ async def get_ai_conversation_list(time_offset: int, payload=Depends(auth_verifi
     conv_list = []
     conv_queryset = ConversationModel.objects(attendee__user_id=user_id, host__role="AI").order_by("-updated_at")
     for conv in conv_queryset:
-        iso_dt = conv.created_at.isoformat()
-        dt = datetime.fromisoformat(iso_dt)
+        dt = conv.created_at
+
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+
         dt = dt.astimezone(timezone(timedelta(hours=time_offset)))
         formatted = dt.strftime("%H:%M %d/%m/%Y")
+        print("Hello your time offset is:", time_offset)
         conv_list.append({
             "created_at": formatted,
             "conversation_id": str(conv.conversation_id),

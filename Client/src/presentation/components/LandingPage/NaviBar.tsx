@@ -79,7 +79,7 @@ export default function NavBar({ isStatic = false }: { isStatic?: boolean }) {
                   <a
                     href="/register"
                     className="inline-block font-medium 
-                              text-black underline-offset-4 
+                              text-black underline-offset-4 hover:underline
                               text-center"
                   >
                     Sign Up
@@ -89,6 +89,16 @@ export default function NavBar({ isStatic = false }: { isStatic?: boolean }) {
 
               {/* If logged in: show User + Logout */}
               {user && (
+              <>
+                <a
+                href="/chat"
+                className="inline-block font-medium 
+                        text-black underline-offset-4 hover:underline
+                          text-center"
+                >
+                  Chat
+                </a>
+
                 <div className="flex items-center gap-6">
                   <a href="/dashboard" className="flex items-center gap-2">
                     <img
@@ -98,6 +108,7 @@ export default function NavBar({ isStatic = false }: { isStatic?: boolean }) {
                     />
                   </a>
                 </div>
+              </>
               )}
             </div>
 
@@ -172,14 +183,26 @@ export default function NavBar({ isStatic = false }: { isStatic?: boolean }) {
               )}
 
               {user && (
-                <div className="flex flex-col items-center gap-2" onClick={() => navigate('/dashboard')}>
-                  <img
-                    src={userIcon}
-                    alt="userIcon"
-                    className="h-8 sm:h-10 md:h-12"
-                  />
+                <>
+                  <a
+                    href="/chat"
+                    className="inline-block font-medium 
+                            text-black hover:underline 
+                              underline-offset-4 text-center"
+                  >
+                    Chat
+                  </a>
 
-                </div>
+
+                  <div className="flex flex-col items-center gap-2" onClick={() => navigate('/dashboard')}>
+                    <img
+                      src={userIcon}
+                      alt="userIcon"
+                      className="h-8 sm:h-10 md:h-12"
+                    />
+
+                  </div>
+                </>
               )}
             </div>
           </div>

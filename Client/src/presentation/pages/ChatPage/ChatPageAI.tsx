@@ -124,12 +124,14 @@ export default function ChatPageAI() {
         if (targetFind) {
             const index = threadList.findIndex(t => t.conversation_id === targetFind)
             if (index !== -1) {
+                console.log(threadList[index])
                 if (threadList[index].last_sender_id !== "TheAIagent") {
                     setIsResponding(true)
                 }
                 else setIsResponding(false)
             }
         }
+        else console.log("yeah nah, it aint working boy")
 
         if (lastMsg) lastMsg.current?.scrollIntoView()
     }, [msgList])
@@ -229,7 +231,7 @@ export default function ChatPageAI() {
                         )}
                     </div>
 
-                    <div className="w-full h-[120px] rounded-b-2xl px-5 py-2">
+                    <div className={`w-full h-[120px] rounded-b-2xl px-5 py-2 ${isResponding ? "pointer-events-none" : ""}`}>
                         <textarea className="w-full h-full text-[16px] rounded-2xl bg-white p-3 overflow-hidden"
                             disabled={isResponding}
                             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -290,6 +292,7 @@ export default function ChatPageAI() {
                     <p className="text-[30px] text-gray-400 w-[800px] text-center select-none">Hôm nay bạn cảm thấy như thế nào?</p>
                     <div className="relative w-[800px]">
                         <textarea
+                            disabled={isResponding}
                             className="bg-white w-full h-[120px] text-[18px] rounded-lg p-5 resize-none
                             outline-gray-300 focus:outline-blue-400 focus:outline-2"
                             value={messageContent}
@@ -299,6 +302,7 @@ export default function ChatPageAI() {
                                 if (e.key === "Enter" && !e.shiftKey) {
                                     e.preventDefault()
 
+                                    setIsResponding(true)
                                     socket.emit("start_new_thread", {content: messageContent, time_offset: -new Date().getTimezoneOffset() / 420})
                                     setMessageContent("")
                                 }
