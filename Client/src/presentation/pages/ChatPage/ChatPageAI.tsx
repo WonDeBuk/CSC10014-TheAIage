@@ -280,11 +280,48 @@ export default function ChatPageAI() {
 
                 <div className="hover:scale-130 transition-transform duration-200 hover:border-b-3 border-white" onClick={() => { navigate('/') }}><LogOut size={50} strokeWidth={1.5} className="text-white" /></div>
             </div>
-            <div className="w-20 h-20 items-center rounded-full outline-white outline-2">
-              <Bot
-                size={45}
-                className="group-hover:scale-150 transition-transform duration-200"
-              />
+
+
+            <div className={`h-full flex-1 flex flex-col items-center gap-5 select-none ${!user || isResponding ? "pointer-events-none" : ""}`}>
+                <div className="w-full h-[75px] flex items-center gap-2">
+                    <div className={`h-[75px] w-[75px] rounded-2xl bg-white flex justify-center items-center hover:scale-120 transition-transform duration-200 ${!targetFind ? "pointer-events-none opacity-50" : ""}`}
+                    onClick={()=>{
+                        setTargetFind("")
+                        navigate("/chatai")}}>
+                        <Plus size={50} strokeWidth={1} className="text-gray-500"></Plus>
+                    </div>
+                    <div className={`h-[75px] w-[75px] rounded-2xl bg-white flex justify-center items-center ${targetFind ? "hover:scale-120 transition-transform duration-200" : "opacity-50"}`}>
+                        <Trash2 size={50} strokeWidth={1} className="text-gray-500"></Trash2>
+                    </div>
+                    <div className="bg-white flex-1 h-[75px] rounded-2xl px-3 py-4 flex items-center justify-center gap-2">
+                        <Search size={32} strokeWidth={1.5} className="text-gray-200" />
+                        <input className="bg-gray-100 w-full h-full rounded-md text-[15px] px-3" placeholder="Tìm kiếm đoạn chat."></input>
+                    </div>
+                </div>
+
+                <div className="bg-white w-full flex-1 rounded-md overflow-y-scroll overflow-x-hidden">
+                    {threadList.length ? (
+                        <div className="flex flex-col gap-2 items-center h-full">
+                            {threadList.map((thread, index) => 
+                            <div className="w-full flex flex-col justify-start items-center gap-2 px-3 py-2">
+                                <div className={`w-full h-full flex flex-col justify-start items-center gap-1 hover:translate-x-1.5 hover:bg-gray-100 p-3 rounded-md transition-all duration-100 ${targetFind === thread.conversation_id ? "bg-gray-200" : ""}`}
+                                onClick={() => {
+                                    setTargetFind(thread.conversation_id)
+                                    navigate(`/chatai?thread=${thread.conversation_id}`)}
+                                }>
+                                    <div className="w-full font-md text-[25px]">{thread.created_at}</div>
+                                    <div className="w-full text-[15px] font-light line-clamp-1">{thread.last_message_content}</div>
+                                </div>
+                                <div className="w-full h-0.5 bg-gray-500"></div>
+                            </div>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="px-15 w-full h-full text-[22px] text-gray-400 flex flex-col justify-center items-center">
+                            <p className="text-center w-full">Không tìm thấy cuộc trò chuyện...</p>
+                        </div>
+                    )}
+                </div>
             </div>
 
             {targetFind ? (

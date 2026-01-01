@@ -388,15 +388,44 @@ export default function ChatPage() {
                         }}></input>
                 </div>
 
-                <div>
-                  <p className="text-[30px] font-bold">ĐIỂM CHÍNH:</p>
-                  <ul className="list-disc pl-6 space-y-2">
-                    {recap.key_points.map((k, index) => (
-                      <li className="w-full text-[18px] whitespace-pre-wrap">
-                        {k}
-                      </li>
-                    ))}
-                  </ul>
+                <div className="bg-white w-full flex-1 rounded-md overflow-y-scroll overflow-x-hidden">
+                    {filteredConvList.length ? (
+                        <div className="flex flex-col gap-2 items-center h-full">
+                            {filteredConvList.map((conv, index) =>
+                                <div className="w-full flex flex-col justify-start items-center gap-2 p-3"
+                                    onClick={() => {
+                                        setTargetUser({
+                                            user_id: conv.other_user_id,
+                                            username: conv.other_username,
+                                            email: conv.other_email,
+                                            role: conv.other_role,
+                                            conversation_id: conv.conversation_id
+                                        })
+                                        navigate(`/chat/?chat=${conv.other_email}`)
+                                    }}
+                                    key={index}>
+
+                                    <div className={`w-full flex-1 flex flex-col gap-2 hover:bg-gray-100 cursor-pointer rounded-2xl py-3 px-2 hover:-translate-y-1.5 transition-all duration-150 ${targetFind === conv.other_email ? "bg-gray-200" : "bg-white"}`}>
+                                        <div className="w-full flex justify-start gap-2 items-center">
+                                            <div className="w-[55px] h-[55px] flex justify-center items-center"><CircleUser size={50} strokeWidth={1.5} className="text-black" /></div>
+                                            <div className="flex-1 flex flex-col items-start justify-start gap-1">
+                                                <p className="text-left text-[30px] text-black h-[35px]">{conv.other_username}</p>
+                                                <p className="text-left text-[15px] text-gray-600 h-5">{conv.other_email}</p>
+                                            </div>
+                                        </div>
+                                        <div className="line-clamp-1 w-full max-h-[30px] text-[18px] text-gray-400 px-2">{conv.last_sender_id === user?.user_id ? "Bạn: " : conv.other_username + ": "} {conv.last_message_content}</div>
+                                    </div>
+                                    <div className="w-full h-0.5 bg-gray-500"></div>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="px-15 w-full h-full text-[22px] text-gray-400 flex flex-col justify-center items-center">
+                            <p className="w-full text-center">Không tìm thấy cuộc trò chuyện...</p>
+                            <div className="bg-blue-400 text-white rounded-2xl text-[18px] font-medium cursor:pointer text-center w-[150px] h-10 flex justify-center items-center select-none"
+                                onClick={() => navigate("/counsellors")}>Tìm kiếm</div>
+                        </div>
+                    )}
                 </div>
 
             {targetUser ? (

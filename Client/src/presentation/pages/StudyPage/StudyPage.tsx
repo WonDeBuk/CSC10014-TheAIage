@@ -31,6 +31,8 @@ const StudyPage: React.FC = () => {
                 case "goal":
                     setAct(actParam)
                     break
+                default:
+                    setAct("pomodoro")
             }
         }
         else setAct("pomodoro")
