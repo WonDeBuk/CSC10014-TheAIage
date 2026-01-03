@@ -8,6 +8,7 @@ import AboutPage from "../presentation/pages/AboutPage/AboutPage";
 import RegisterPage from "../presentation/pages/RegisterPage/RegisterPage";
 import ChatPage from "../presentation/pages/ChatPage/ChatPage";
 import ChatPageAI from "@/presentation/pages/ChatPage/ChatPageAI";
+import EmotionsTrackerPage from "@/presentation/pages/EmotionsTrackerPage/EmotionsTrackerPage";
 
 import ChatBot from "@/presentation/pages/ChatBotTest/ChatBot";
 import FileUpload from "@/presentation/pages/ChatBotTest/FileUpload";
@@ -15,8 +16,7 @@ import FileUpload from "@/presentation/pages/ChatBotTest/FileUpload";
 import RouteProtector from "@/presentation/components/RouteProtector";
 import ActivityPage from "@/presentation/pages/ActivityPage/ActivityPage";
 
-import CounsellorMessagegPage from "@/presentation/pages/MessagePage/CounsellorMessagePage";
-
+//import CounsellorMessagegPage from "@/presentation/pages/MessagePage/CounsellorMessagePage";
 export const router = createBrowserRouter([
   { path: "/", element: <LandingPage /> },
   {
@@ -33,10 +33,11 @@ export const router = createBrowserRouter([
   { path: "/about", element: <AboutPage /> },
   { path: "/chat", element: <ChatPage /> },
   { path: "/chatai", element: <ChatPageAI /> },
-  { path: "activity", element: <ActivityPage/>},
+  { path: "activity", element: <ActivityPage /> },
+  { path: "tracker", element: <EmotionsTrackerPage /> },
 
-  { path: "/test", element: <ChatBot />},
-  { path: "/file", element: <FileUpload />},
-  { path: "/message", element: <CounsellorMessagegPage /> },
+  { path: "/test", element: <ChatBot /> },
+  { path: "/file", element: <FileUpload /> },
+  // { path: "/message", element: <CounsellorMessagegPage /> },
   { path: "*", element: <div>404 Not Found</div> },
 ]);

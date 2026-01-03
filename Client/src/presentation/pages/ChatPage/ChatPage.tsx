@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "@/presentation/pages/ChatPage/ChatPage.css";
-import home_icon from "@/assets/Icon/home_icon.png";
-import setting_icon from "@/assets/Icon/setting_icon.png";
-import send_icon from "@/assets/Icon/send_icon.png";
+import { Home, Settings, Send } from "lucide-react";
 
 export default function ChatPage() {
   const navigate = useNavigate();
@@ -327,9 +325,8 @@ export default function ChatPage() {
         <div className="w-full h-2/11 bg-inherit flex justify-start items-center pl-3 gap-2">
           <div>
             {" "}
-            <img
-              src={home_icon}
-              className="w-[40px] h-[40px]"
+            <Home
+              className="w-[40px] h-[40px] cursor-pointer"
               onClick={() => {
                 navigate("/");
               }}
@@ -337,9 +334,8 @@ export default function ChatPage() {
           </div>
           <div>
             {" "}
-            <img
-              src={setting_icon}
-              className="w-[40px] h-[40px]"
+            <Settings
+              className="w-[40px] h-[40px] cursor-pointer"
               onClick={() => {
                 navigate("/");
               }}
@@ -393,7 +389,7 @@ export default function ChatPage() {
             className="w-[50px] h-[50px] rounded-[50px] bg-blue-500 hover:bg-blue-7 00 flex justify-center items-center"
             onClick={sendMessage}
           >
-            <img className="w-[30px] h-[30px]" src={send_icon} />
+            <Send className="w-[30px] h-[30px] text-white" />
           </div>
         </div>
       </div>
