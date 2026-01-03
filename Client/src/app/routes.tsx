@@ -8,6 +8,7 @@ import AboutPage from "../presentation/pages/AboutPage/AboutPage";
 import RegisterPage from "../presentation/pages/RegisterPage/RegisterPage";
 import ChatPage from "../presentation/pages/ChatPage/ChatPage";
 import ChatPageAI from "@/presentation/pages/ChatPage/ChatPageAI";
+import EmotionsTrackerPage from "@/presentation/pages/EmotionsTrackerPage/EmotionsTrackerPage";
 
 import ChatBot from "@/presentation/pages/ChatBotTest/ChatBot";
 import FileUpload from "@/presentation/pages/ChatBotTest/FileUpload";
@@ -17,13 +18,14 @@ import ActivityPage from "@/presentation/pages/ActivityPage/ActivityPage";
 import StudyPage from "@/presentation/pages/StudyPage/StudyPage";
 
 export const router = createBrowserRouter([
-
   { path: "/", element: <LandingPage /> },
   {
-    path: "/dashboard", element: (
+    path: "/dashboard",
+    element: (
       <RouteProtector>
         <DashboardPage />
-      </RouteProtector>)
+      </RouteProtector>
+    ),
   },
   { path: "/login", element: <LoginPage /> },
   { path: "/register", element: <RegisterPage /> },
@@ -33,6 +35,7 @@ export const router = createBrowserRouter([
   { path: "/chatai", element: <ChatPageAI /> },
   { path: "/study", element: <StudyPage /> },
   { path: "activity", element: <ActivityPage /> },
+  { path: "tracker", element: <EmotionsTrackerPage /> },
 
   { path: "/test", element: <ChatBot /> },
   { path: "/file", element: <FileUpload /> },
