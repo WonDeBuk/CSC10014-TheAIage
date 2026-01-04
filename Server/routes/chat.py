@@ -70,7 +70,6 @@ async def get_ai_conversation_list(time_offset: int, payload=Depends(auth_verifi
 
         dt = dt.astimezone(timezone(timedelta(hours=time_offset)))
         formatted = dt.strftime("%H:%M %d/%m/%Y")
-        print("Hello your time offset is:", time_offset)
         conv_list.append({
             "created_at": formatted,
             "conversation_id": str(conv.conversation_id),

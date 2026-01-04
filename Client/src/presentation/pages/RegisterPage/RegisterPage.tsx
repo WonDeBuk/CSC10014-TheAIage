@@ -138,29 +138,31 @@ export default function RegisterPage() {
 
                             <div className="w-full flex flex-col gap-1">
                                 <p className="text-[20px] font-[350]">Hương vị:</p>
-                                <div className="flex justify-center items-center">
-                                    <div className="bg-[#a43737] w-10 h-10 rounded-full"
-                                    onClick={() => {setFormData((prev) => ({...prev, flavor: "#a43737"}))}}></div>
-                                </div>
+                                <div className="w-full h-10 flex justify-center gap-5">
+                                    <div className={`flex justify-center items-center hover:scale-120 transition-all duration-75`}>
+                                        <div className={`bg-[#a43737] w-10 h-10 rounded-full ${formData.flavor === "#a43737" ? "scale-120 outline-5 outline-blue-500" : ""}`}
+                                        onClick={() => {setFormData((prev) => ({...prev, flavor: "#a43737"}))}}></div>
+                                    </div>
 
-                                <div className="flex justify-center items-center">
-                                    <div className="bg-[#6da437] w-10 h-10 rounded-full"
-                                    onClick={() => {setFormData((prev) => ({...prev, flavor: "#6da437"}))}}></div>
-                                </div>
+                                    <div className={`flex justify-center items-center hover:scale-120 transition-all duration-75`}>
+                                        <div className={`bg-[#6da437] w-10 h-10 rounded-full ${formData.flavor === "#6da437" ? "scale-120 outline-5 outline-blue-500" : ""}`}
+                                        onClick={() => {setFormData((prev) => ({...prev, flavor: "#6da437"}))}}></div>
+                                    </div>
 
-                                <div className="flex justify-center items-center">
-                                    <div className="bg-[#3773a4] w-10 h-10 rounded-full"
-                                    onClick={() => {setFormData((prev) => ({...prev, flavor: "#3773a4"}))}}></div>
-                                </div>
+                                    <div className={`flex justify-center items-center hover:scale-120 transition-all duration-75`}>
+                                        <div className={`bg-[#3773a4] w-10 h-10 rounded-full ${formData.flavor === "#3773a4" ? "scale-120 outline-5 outline-blue-500" : ""}`}
+                                        onClick={() => {setFormData((prev) => ({...prev, flavor: "#3773a4"}))}}></div>
+                                    </div>
 
-                                <div className="flex justify-center items-center">
-                                    <div className="bg-[#4d37a4] w-10 h-10 rounded-full"
-                                    onClick={() => {setFormData((prev) => ({...prev, flavor: "#4d37a4"}))}}></div>
-                                </div>
-                                
-                                <div className="flex justify-center items-center">
-                                    <div className="bg-[#a46e37a43737] w-10 h-10 rounded-full"
-                                    onClick={() => {setFormData((prev) => ({...prev, flavor: "#a46e37"}))}}></div>
+                                    <div className={`flex justify-center items-center hover:scale-120 transition-all duration-75`}>
+                                        <div className={`bg-[#4d37a4] w-10 h-10 rounded-full ${formData.flavor === "#4d37a4" ? "scale-120 outline-5 outline-blue-500" : ""}`}
+                                        onClick={() => {setFormData((prev) => ({...prev, flavor: "#4d37a4"}))}}></div>
+                                    </div>
+                                    
+                                    <div className={`flex justify-center items-center hover:scale-120 transition-all duration-75`}>
+                                        <div className={`bg-[#a3378d] w-10 h-10 rounded-full ${formData.flavor === "#a3378d" ? "scale-120 outline-5 outline-blue-500" : ""}`}
+                                        onClick={() => {setFormData((prev) => ({...prev, flavor: "#a3378d"}))}}></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

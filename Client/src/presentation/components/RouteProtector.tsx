@@ -1,18 +1,11 @@
-import { JSX } from "react";
-import { Navigate } from "react-router-dom";
-import { useAuth } from "@/app/providers/AuthProvider";
+import { Navigate, Outlet } from "react-router-dom";
 
-export default function RouteProtector({ children }: { children: JSX.Element }) {
-  const { user, loading } = useAuth();
-  console.log(user)
-  if (loading) {
-    return <div>Loading...</div>;
+const RouteProtector = () => {
+  if (localStorage.getItem("token")) {
+    return <Outlet />;
   }
 
-  if (user) {
-    return children;
-  }
+  return <Navigate to="/login" replace />;
+};
 
-  return children;
-  //return <Navigate to="/login" replace />;
-}
+export default RouteProtector;

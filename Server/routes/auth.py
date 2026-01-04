@@ -1,8 +1,9 @@
 from fastapi import APIRouter
-from database import ConversationModel, UserModel
+from database import ConversationModel, UserModel, ActivityModel, QuestModel
 from fastapi import Depends, HTTPException
 from util.token import create_token, auth_verifier
 from typing import Any
+import random
 
 auth_router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -37,8 +38,8 @@ async def login(data: dict[str, Any], payload=Depends(auth_verifier)):
     token = await create_token(str(user.user_id), user.username, user.email, user.role)
     return {"msg": "Login successful", "token": token}
 
-@auth_router.get("/me")
-async def get_current_user(payload=Depends(auth_verifier)):
+@auth_router.get("/me/{date}")
+async def get_current_user(date: str, payload=Depends(auth_verifier)):
     if not payload:
         raise HTTPException(status_code=401, detail="Not authenticated.")
     user_id = payload.get("user_id")
@@ -47,6 +48,14 @@ async def get_current_user(payload=Depends(auth_verifier)):
     if not user:
         raise HTTPException(status_code=404, detail="User does not exist.")
     
+    today_activity = ActivityModel.objects(user_id=user_id,day_created=date).first()
+    if not today_activity:
+        today_activity = ActivityModel(
+            user_id=user_id,
+            day_created=date
+        )
+        today_activity.save()
+
     return {
         "user_id": str(user.user_id),
         "username": user.username,

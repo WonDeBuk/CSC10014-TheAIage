@@ -3,6 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from bson.objectid import ObjectId
 from datetime import datetime, timezone, date
 from dotenv import load_dotenv
+import random
 import os
 
 load_dotenv()
@@ -130,26 +131,90 @@ class DiagnosisModel(Document):
         ]
     }
 
+class PlantModel(Document):
+    plant_id = ObjectIdField(primary_key=True, default=ObjectId)
+    user_id = StringField(required=True)
+    plant_type = StringField(required=True, choices=["sunflower", "rose", "lilybell", "narcissus", "daisy", ""], default="")
+    previous_level = IntField(default=0)
+    previous_exp = IntField(default=0)
+    previous_max_exp = IntField(default=100)
+    level = IntField(default=0, max_value=20)
+    exp = IntField(default=0)
+    max_exp = IntField(default=100)
+    meta =  {
+        "db_alias": "AccountDB",
+        "collection": "Plants",
+        "indexes": [
+            "user_id"
+        ]
+    }
+
+    def receive_exp(self, exp_gain: int):
+        if self.level == 20:
+            return
+        self.exp += exp_gain
+        if self.exp >= self.max_exp:
+            while (self.exp >= self.max_exp and self.level < 20):
+                self.exp -= self.max_exp 
+                self.level += 1
+                self.max_exp = round(100 + (self.level + 1) * (self.level + 1) * (3 / 8))
+        self.save()
+
+    def update_previous(self):
+        self.previous_exp = self.exp
+        self.previous_max_exp = self.max_exp
+        self.previous_level = self.level
+        self.save()
+
+    def reset_stat(self):
+        self.exp = 0
+        self.previous_exp = 0
+        self.max_exp = 100
+        self.previous_max_exp = 100
+        self.level = 1
+        self.previous_level = 1
+        self.plant_type = ""
+        self.save()
+
+    def harvest(self):
+        user = UserModel.objects(user_id = self.user_id).first()
+        if not user: 
+            raise ValueError("User not found in harvesting.")
+
+        #add the plant into the user stats
+        
+        self.reset_stat()
+   
+
+
+
+class MoodModel(Document):
+    mood_id = ObjectIdField(primary_key=True, default=ObjectId)
+    user_id = StringField(required=True)
+    day_created = StringField(required=True)
+    mood_score = IntField(default=1,min_value=1,max_value=10)
+    note = StringField()
+    meta = {
+        "db_alias": "AccountDB",
+        "collection": "Moods",
+        "indexes": [
+            "user_id",
+            "-day_created"
+        ]
+    }
+
 class ActivityModel(Document):
     activity_id = ObjectIdField(primary_key=True, default=ObjectId)
 
-    user_id = ReferenceField(
-        "UserModel",
-        required=True,
-        reverse_delete_rule=CASCADE
-    )
-
-    sprout_level = IntField(required=True, default=1)
-    exp_count = IntField(required=True, default=0)
-
-    login_check = BooleanField(default=False)
-    diary_check = BooleanField(default=False)
-    mood_check = BooleanField(default=False)
+    user_id = StringField(required=True)
 
     day_created = StringField(required=True)
 
-    study_session_count = IntField(default=0)
-    finished_task_count = IntField(default=0)
+    login = IntField(default=1)
+    mood = IntField(default=0)
+    diary = IntField(default=0)
+    pomodoro = IntField(default=0)
+    goal = IntField(default=0)
 
     meta = {
         "db_alias": "AccountDB",
@@ -163,29 +228,65 @@ class ActivityModel(Document):
 class QuestModel(Document):
     quest_id = ObjectIdField(primary_key=True, default=ObjectId)
 
-    user_id = ReferenceField(
-        "UserModel",
-        required=True,
-        reverse_delete_rule=CASCADE       
-    )
-
-    login_quota = BooleanField(default=False)
-    diary_quota = BooleanField(default=False)
-    mood_quota = BooleanField(default=False)
-
+    user_id = StringField(required=True)
+    type = StringField(choices=["pomodoro", "login", "mood", "goal", "diary"], required=True)
     day_created = StringField(required=True)
-
-    study_session_quota = IntField(default=0)
-    finished_task_quota = IntField(default=0)
+    exp = IntField(default=25)
+    quota = IntField(required=True, default=1)
+    claimed = BooleanField(default=False)
 
     meta = {
         "db_alias": "AccountDB",
         "collection": "Quests",
         "indexes": [
             "user_id",
-            "-day_created"
+            "-day_created",
+            "claimed"
         ]
     }
+
+    @classmethod
+    def create_quest(cls, quest_type: str, user_id: str, day_created: str):
+        estimate_quota = 0
+        estimate_exp = 0
+        can_claim = False
+        user_activity = ActivityModel.objects(user_id=user_id,day_created=day_created).first()
+        match quest_type:
+            case "login":
+                estimate_quota = 1
+                estimate_exp = 25
+                can_claim = user_activity.login > 0
+            case "mood":
+                estimate_quota = 1
+                estimate_exp = 50
+                can_claim = user_activity.mood > 0
+            case "diary":
+                estimate_quota = 1
+                estimate_exp = 100
+                can_claim = user_activity.diary > 0
+            case "pomodoro":
+                estimate_quota = random.randint(1, 2)
+                estimate_exp = estimate_quota * 125
+                can_claim = user_activity.pomodoro >= estimate_quota
+            case "goal":
+                estimate_quota = random.randint(1, 3)
+                estimate_exp = estimate_quota * 200
+                can_claim = user_activity.goal >= estimate_quota
+
+        plant = PlantModel.objects(user_id=user_id,plant_type__ne="").first()
+        if plant and can_claim:
+            plant.receive_exp(estimate_exp)
+        return cls(
+            type = quest_type,
+            user_id = user_id,
+            day_created = day_created,
+            exp = estimate_exp,
+            quota = estimate_quota,
+            claimed = can_claim
+        )
+            
+            
+        
 
 
 class DiaryModel(Document):

@@ -10,7 +10,6 @@ import {
 import AxiosInstance from "@/util/AxiosInstance";
 
 type User = {
-  date: string;
   username: string;
   user_id: string;
   email: string;
@@ -29,10 +28,7 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Local storage keys
-const USER_CACHE_KEY = "auth_user_cache";
 const TOKEN_KEY = "token";
-
-// Get user from cache
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -42,7 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const hasFetched = useRef(false);
 
   const getLocalDate = () => {
-      const d = new Date();
+    const d = new Date();
     return [
       d.getFullYear(),
       String(d.getMonth() + 1).padStart(2, "0"),
@@ -52,10 +48,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchAuth = async () => {
     try {
-      const res = await AxiosInstance.get("/auth/me");
+      const res = await AxiosInstance.get(`/auth/me/${getLocalDate()}`);
       const data = res.data;
       const userData: User = {
-        date: getLocalDate(),
         username: data.username,
         user_id: data.user_id,
         email: data.email,

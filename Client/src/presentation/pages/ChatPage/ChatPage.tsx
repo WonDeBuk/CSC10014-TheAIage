@@ -238,7 +238,7 @@ export default function ChatPage() {
                         : <></>}
                 </div>
             </> : <></>}
-            <div className="bg-black/30 h-full w-[120px] rounded-2xl flex flex-col items-center justify-between gap-10 p-8">
+            <div className="bg-black/20 h-full w-[120px] rounded-2xl flex flex-col items-center justify-between gap-10 p-8">
                 <div className="bg-blue-50 h-20 w-20 rounded-full"></div>
 
                 <div className="w-full flex-1 rounded-2xl">
@@ -250,7 +250,7 @@ export default function ChatPage() {
                                 <div onClick={() => navigate("/counsellors")} className="w-[50px] h-[50px] group :hover:w-[80px] :hover:h-[80px] transition-all duration-200"><UserSearch size={30} className="group-hover:scale-150 transition-transform duration-200" /></div>
                             </>
                             : <></>}
-                        <div className="w-[50px] h-[50px] group :hover:w-[80px] :hover:h-[80px] transition-all duration-200"><CalendarFold size={30} className="group-hover:scale-150 transition-transform duration-200" /></div>
+                        <div onClick={() => navigate("/study")}className="w-[50px] h-[50px] group :hover:w-[80px] :hover:h-[80px] transition-all duration-200"><CalendarFold size={30} className="group-hover:scale-150 transition-transform duration-200" /></div>
                     </div>
                 </div>
 
