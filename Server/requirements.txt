@@ -19,3 +19,4 @@ sentence-transformers
 torch
 transformers
 pydantic
+python-multipart

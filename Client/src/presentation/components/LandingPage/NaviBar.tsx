@@ -56,6 +56,15 @@ export default function NavBar({ isStatic = false }: { isStatic?: boolean }) {
               </a>
 
               <a
+                href="/test"
+                className="inline-block font-medium 
+                          text-black hover:underline 
+                          underline-offset-4"
+              >
+                Test
+              </a>
+
+              <a
                 href="/study"
                 className="inline-block font-medium 
                           text-black hover:underline 
@@ -137,6 +146,15 @@ export default function NavBar({ isStatic = false }: { isStatic?: boolean }) {
                           underline-offset-4 text-center"
               >
                 Counsellors
+              </a>
+
+              <a
+                href="/test"
+                className="inline-block font-medium 
+                          text-black hover:underline 
+                          underline-offset-4 text-center"
+              >
+                Test
               </a>
 
               <a
