@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from database import QuestModel, ActivityModel, PlantModel
+from database import QuestModel, ActivityModel, PlantModel, TaskModel, DiaryModel
 from fastapi import Depends, HTTPException
 from util.token import create_token, auth_verifier
 from typing import Any
@@ -81,6 +81,7 @@ async def update_user_stats(data: dict[str, Any], payload=Depends(auth_verifier)
     if not activity:
         raise HTTPException(status_code=404, detail="Activity not found")
     
+    plant = PlantModel.objects(user_id=user_id,plant_type__ne="").first()
     progress = 1
 
     match activity_type:
@@ -93,14 +94,17 @@ async def update_user_stats(data: dict[str, Any], payload=Depends(auth_verifier)
         case "pomodoro":
             progress += activity.pomodoro
             activity.pomodoro = progress
+            if plant:
+                plant.receive_exp(75)
         case "goal":
             progress += activity.goal
             activity.goal = progress
+            if plant:
+                plant.receive_exp(125 * data.get("difficulty"))
     activity.save()
 
     today_quest = QuestModel.objects(user_id=user_id,day_created=date,type=activity_type,claimed=False).first()
-    if today_quest and today_quest.quota <= progress:
-        plant = PlantModel.objects(user_id=user_id).first()
+    if plant and today_quest and today_quest.quota <= progress:
         plant.receive_exp(today_quest.exp)
         today_quest.claimed = True
         today_quest.save()
@@ -118,7 +122,9 @@ async def create_plant(plant_type: str, date: str, payload=Depends(auth_verifier
     
     plant.plant_type = plant_type
     plant.save()
-    await create_quest(date, user_id)
+    is_quest = QuestModel.objects(user_id=user_id,day_created=date).first()
+    if not is_quest:
+        await create_quest(date, user_id)
     return {
         "quest_flag": True
     }
@@ -159,3 +165,130 @@ async def get_plant(payload=Depends(auth_verifier)):
 
     plant.update_previous()
     return res
+
+@activity_router.get("/daily/{date}")
+async def get_daily_goal(date: str, payload=Depends(auth_verifier)):
+    if not payload:
+        raise HTTPException(status_code=401, detail="Not authorized")
+    
+    user_id = payload.get("user_id")
+    task_queryset = TaskModel.objects(user_id=user_id,day_created=date).order_by("difficulty")
+
+    if not task_queryset:
+        raise HTTPException(status_code=404, detail="No today task")
+    
+    task_list = []
+    for t in task_queryset:
+        task_list.append({
+            "task_id": str(t.task_id),
+            "title": t.title,
+            "desc": t.desc,
+            "difficulty": t.difficulty,
+            "is_completed": t.is_completed
+        })
+
+    return task_list
+
+@activity_router.post("/task/assign")
+async def create_tommorow_goal(data: dict[str, Any], payload=Depends(auth_verifier)):
+    if not payload:
+        raise HTTPException(status_code=401, detail="Not authorized")
+    
+    user_id = payload.get("user_id")
+    date = data.get("date")
+
+    new_task = TaskModel(
+        day_created=date,
+        user_id=user_id,
+        title=data.get("title"),
+        difficulty=data.get("difficulty"),
+        desc=data.get("desc")
+    )
+
+    new_task.save()
+    return {
+        "task_id": str(new_task.task_id)
+    }
+
+@activity_router.post("/task/modify")
+async def complete_task(data: dict[str, Any], payload=Depends(auth_verifier)):
+    if not payload:
+        raise HTTPException(status_code=401, detail="Not authorized")
+    
+    task_id = data.get("task_id")
+    user_id = payload.get("user_id")
+    action_type = data.get("action_type")
+
+    task = TaskModel.objects(task_id=task_id).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task does not exist")
+    elif task.user_id != user_id:
+        raise HTTPException(status_code=401, detail="Not your task")
+    
+    match action_type:
+        case "complete":
+            task.is_completed = True
+            task.save()
+        case "delete":
+            task.delete()
+    
+@activity_router.get("/diary/records")
+async def get_diary_record(payload=Depends(auth_verifier)):
+    if not payload:
+        raise HTTPException(status_code=401, detail="Not authorized")
+    
+    user_id = payload.get("user_id")
+    print("User requires diary records:", user_id)
+    diary_queryset = DiaryModel.objects(user_id=user_id).order_by("day_created")
+    if not diary_queryset:
+        raise HTTPException(status_code=404, detail="No diary record found")
+    
+    diary_list = []
+    for diary in diary_queryset:
+        diary_list.append({
+            "date": diary.day_created,
+            "content": diary.content
+        })
+
+    return diary_list
+
+@activity_router.get("/diary/{date}")
+async def get_dated_record(date: str, payload=Depends(auth_verifier)):
+    if not payload:
+        raise HTTPException(status_code=401, detail="Not authorized")
+    
+    user_id = payload.get("user_id")
+    diary = DiaryModel.objects(user_id=user_id, day_created=date).first()
+    if not diary:
+        raise HTTPException(status_code=404, detail="Diary record does not exist")
+    
+    return {
+        "content": diary.content
+    }
+
+@activity_router.post("/diary/modify")
+async def modify_dated_record(data: dict[str, Any], payload=Depends(auth_verifier)):
+    if not payload:
+        raise HTTPException(status_code=401, detail="Not authorized")
+    
+    user_id = payload.get("user_id")
+    date = data.get("date")
+    action_type = data.get("action_type")
+
+    diary = DiaryModel.objects(user_id=user_id, day_created=date).first()
+    if not diary:
+        if action_type == "edit":
+            DiaryModel(
+                user_id=user_id,
+                day_created=date,
+                content=data.get("content")
+            ).save()
+        else:
+            raise HTTPException(status_code=404, detail="No record to modify")
+    else:
+        match action_type:
+            case "edit":
+                diary.content = data.get("content")
+                diary.save()
+            case "delete":
+                diary.delete()

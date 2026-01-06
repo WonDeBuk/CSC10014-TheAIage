@@ -158,6 +158,9 @@ class PlantModel(Document):
                 self.exp -= self.max_exp 
                 self.level += 1
                 self.max_exp = round(100 + (self.level + 1) * (self.level + 1) * (3 / 8))
+            if self.level == 20:
+                self.max_exp = 100
+                self.exp = 100
         self.save()
 
     def update_previous(self):
@@ -286,20 +289,32 @@ class QuestModel(Document):
         )
             
             
-        
+class TaskModel(Document):
+    task_id = ObjectIdField(primary_key=True, default=ObjectId)
+
+    user_id = StringField(required=True)
+    day_created = StringField(required=True)
+
+    title = StringField(required=True)
+    desc = StringField()
+    difficulty = IntField(min_value=1, max_value=6)
+    is_completed = BooleanField(default=False)
+
+    meta = {
+        "db_alias": "AccountDB",
+        "collection": "Tasks",
+        "indexes": [
+            "user_id",
+            "-day_created",
+        ]
+    }
 
 
 class DiaryModel(Document):
     diary_id = ObjectIdField(primary_key=True, default=ObjectId)
 
-    user_id = ReferenceField(
-        "UserModel",
-        required=True,
-        reverse_delete_rule=CASCADE
-    )
-
-    day_created = DateField(default=lambda: datetime.now(timezone.utc).date())
-
+    user_id = StringField(required=True)
+    day_created = StringField(required=True)
     content = StringField(required=True)
 
     meta = {
@@ -308,21 +323,6 @@ class DiaryModel(Document):
         "indexes": [
             "user_id",
             "-day_created"
-        ]
-    }
-
-class TaskModel(Document):
-    task_id = ObjectIdField(primary_key=True, default=ObjectId)
-    time_start = DateTimeField(required=True)
-    duration = IntField(require=True)
-    activity_name = StringField(required = True)
-    description = StringField()
-    difficulty = IntField(choices=[0, 1, 2, 3, 4, 5], default=0)
-    meta = {
-        "db_alias": "AccountDB",
-        "collection": "Tasks",
-        "indexes": [
-            "-time_start"
         ]
     }
 

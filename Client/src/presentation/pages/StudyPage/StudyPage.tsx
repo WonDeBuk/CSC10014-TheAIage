@@ -5,15 +5,16 @@ import NaviBar from "@/presentation/components/LandingPage/NaviBar";
 import PomodoroSession from '@/presentation/components/StudyPage/PomodoroSession';
 import GoalSession from '@/presentation/components/StudyPage/GoalSession';
 import GardenSession from '@/presentation/components/StudyPage/GardenSession';
+import DiarySession from '@/presentation/components/StudyPage/DiarySession';
 
 type session = "pomodoro" | "garden" | "diary" | "mood" | "goal"
 
 const act: Record<session, React.JSX.Element> = {
     pomodoro: <PomodoroSession></PomodoroSession>,
     garden: <GardenSession></GardenSession>,
-    diary: <></>,
+    diary: <DiarySession></DiarySession>,
     mood: <></>,
-    goal: <GoalSession />
+    goal: <GoalSession></GoalSession>
 }
 
 const StudyPage: React.FC = () => {

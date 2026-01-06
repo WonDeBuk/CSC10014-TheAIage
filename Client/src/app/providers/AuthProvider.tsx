@@ -22,7 +22,7 @@ type AuthContextType = {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   refreshAuth: () => Promise<void>;
-  getLocalDate: () => string;
+  getLocalDate: (offset: number) => string;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -37,8 +37,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // prevent duplicate /auth/me calls
   const hasFetched = useRef(false);
 
-  const getLocalDate = () => {
+  const getLocalDate = (offset: number = 0) => {
     const d = new Date();
+    d.setDate(d.getDate() + offset)
     return [
       d.getFullYear(),
       String(d.getMonth() + 1).padStart(2, "0"),
@@ -47,24 +48,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const fetchAuth = async () => {
-    try {
-      const res = await AxiosInstance.get(`/auth/me/${getLocalDate()}`);
-      const data = res.data;
-      const userData: User = {
-        username: data.username,
-        user_id: data.user_id,
-        email: data.email,
-        role: data.role,
-      };
+    if (localStorage.getItem("token")) {
+      try {
+        const res = await AxiosInstance.get(`/auth/me/${getLocalDate()}`);
+        const data = res.data;
+        const userData: User = {
+          username: data.username,
+          user_id: data.user_id,
+          email: data.email,
+          role: data.role,
+        };
 
-      setUser(userData);
-    } catch (e) {
-      console.error("fetchAuth: error", e);
-      localStorage.removeItem(TOKEN_KEY)
-      setUser(null);
-    } finally {
-      setLoading(false);
+        setUser(userData);
+      }
+      catch (e) {
+        console.error("fetchAuth: error", e)
+        setUser(null);
+      }
     }
+    setLoading(false)
   };
 
   useEffect(() => {

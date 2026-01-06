@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, use } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Play, Pause, RotateCcw, CheckCircle, Plus, Trash2, Clock } from 'lucide-react';
 import { useAuth } from '@/app/providers/AuthProvider';
 import AxiosInstance from '@/util/AxiosInstance';
@@ -19,7 +19,7 @@ const PomodoroSession = () => {
 
     const CIRCUMFERENCE = 565.48; // 2 * PI * 90
     const MODES = {
-        focus: { label: 'Focus time', minutes: 0.1, color: 'text-black' },
+        focus: { label: 'Focus time', minutes: 25, color: 'text-black' },
         short: { label: 'Short break', minutes: 5, color: 'text-black' },
         long: { label: 'Long break', minutes: 15, color: 'text-black' }
     };
@@ -29,7 +29,7 @@ const PomodoroSession = () => {
         try {
             await AxiosInstance.post("/activity/match", {
                 "activity_type": "pomodoro",
-                "date": getLocalDate(),
+                "date": getLocalDate(0),
                 "user_id": user?.user_id || ""
             })
         }
