@@ -187,6 +187,32 @@ class QuestModel(Document):
         ]
     }
 
+class MoodLog(Document):
+    mood_id = ObjectIdField(primary_key=True, default=ObjectId)
+
+    user_id = ReferenceField(
+        "UserModel",
+        required=True,
+        reverse_delete_rule=CASCADE
+    )
+
+    score = IntField(required=True, min_value=1, max_value=10)
+    note = StringField()
+    day_created = DateField(default=lambda: datetime.now(timezone.utc).date())
+    created_at = DateTimeField(default=lambda: datetime.now(timezone.utc))
+
+    meta = {
+        "db_alias": "AccountDB",
+        "collection": "MoodLogs",
+        "indexes": [
+            "user_id",
+            "-day_created",
+            {
+                "fields": ["user_id", "day_created"],
+                "unique": True  # 1 mood / user / day
+            }
+        ]
+    }
 
 class DiaryModel(Document):
     diary_id = ObjectIdField(primary_key=True, default=ObjectId)
