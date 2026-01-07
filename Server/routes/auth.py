@@ -10,15 +10,15 @@ auth_router = APIRouter(prefix="/auth", tags=["auth"])
 @auth_router.post("/register")
 async def register(data: dict[str, Any], payload=Depends(auth_verifier)):
     if payload:
-        raise HTTPException(status_code=401, detail="Already authenticated.")
+        raise HTTPException(status_code=400, detail="Already authenticated.")
     email = data.get("email")
 
     user = UserModel.objects(email=email).first()
     print(email)
     if user:
-        raise HTTPException(status_code=401, detail="Email already in use.")
+        raise HTTPException(status_code=400, detail="Email already in use.")
     
-    user = UserModel.create_user(data.get("username"), email, data.get("password"), data.get("role"))
+    user = UserModel.create_user(data.get("username"), email, data.get("password"), data.get("role"), data.get("description"), data.get("expertise"), data.get("flavor"))
     user.save()
     token = await create_token(str(user.user_id), user.username, user.email, user.role)
     return {"msg": "Account created successfully", "token": token}
@@ -33,7 +33,7 @@ async def login(data: dict[str, Any], payload=Depends(auth_verifier)):
 
     user = UserModel.objects(email=email).first()
     if (not user) or (not user.check_user_password(password)):
-        raise HTTPException(status_code=401, detail="Invalid email or password.")
+        raise HTTPException(status_code=400, detail="Invalid email or password.")
     
     token = await create_token(str(user.user_id), user.username, user.email, user.role)
     return {"msg": "Login successful", "token": token}

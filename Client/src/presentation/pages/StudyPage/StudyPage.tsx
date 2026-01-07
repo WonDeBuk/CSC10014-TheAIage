@@ -6,6 +6,7 @@ import PomodoroSession from '@/presentation/components/StudyPage/PomodoroSession
 import GoalSession from '@/presentation/components/StudyPage/GoalSession';
 import GardenSession from '@/presentation/components/StudyPage/GardenSession';
 import DiarySession from '@/presentation/components/StudyPage/DiarySession';
+import MoodTracker from '@/presentation/components/StudyPage/MoodSession/MoodTracker';
 
 type session = "pomodoro" | "garden" | "diary" | "mood" | "goal"
 
@@ -13,7 +14,7 @@ const act: Record<session, React.JSX.Element> = {
     pomodoro: <PomodoroSession></PomodoroSession>,
     garden: <GardenSession></GardenSession>,
     diary: <DiarySession></DiarySession>,
-    mood: <></>,
+    mood: <MoodTracker></MoodTracker>,
     goal: <GoalSession></GoalSession>
 }
 

@@ -33,6 +33,13 @@ export default function ChatPageAI() {
     const textArea = React.useRef<HTMLTextAreaElement>(null);
     const lastMsg = React.useRef<HTMLDivElement>(null)
 
+    const [searchQuery, setSearchQuery] = useState("")
+    const [filteredThreadList, setFilteredThreadList] = useState<thread[]>([])
+
+    const [hasAllThreads, setHasAllThreads] = useState<boolean>(false)
+    const [hasThreadInfo, setHasThreadInfo] = useState<boolean>(targetFind === null)
+    const [hasNewThread, setHasNewThread] = useState<boolean>(false)
+
     async function fetchMessages() {
         try {
             const rep = await AxiosInstance.get(`chat/message/ai/${targetFind}`)
@@ -43,6 +50,7 @@ export default function ChatPageAI() {
             navigate("/chatai")
             console.log(e)
         }
+        setHasThreadInfo(true)
     }
 
     useEffect(() => {
@@ -91,6 +99,7 @@ export default function ChatPageAI() {
             setTargetFind(data.conversation_id);
             setthreadList((prev) => [{created_at: data.created_at, conversation_id: data.conversation_id, last_sender_id: "TheAIagent", last_message_content: data.content}, ...prev])
             navigate(`/chatai?thread=${data.conversation_id}`);
+            setHasNewThread(false)
         });
 
         const fetchConversations = async () => {
@@ -102,6 +111,7 @@ export default function ChatPageAI() {
             catch (e: any) {
                 console.log(e)
             }
+            setHasAllThreads(true)
         }
 
         fetchConversations()
@@ -110,8 +120,8 @@ export default function ChatPageAI() {
 
         return () => {
             if (socket) {
-                socket.disconnect();
                 socket.removeAllListeners();
+                socket.disconnect();
             }
         }
     }, [])
@@ -133,59 +143,93 @@ export default function ChatPageAI() {
         }
         else console.log("yeah nah, it aint working boy")
 
-        if (lastMsg) lastMsg.current?.scrollIntoView()
+        if (lastMsg) 
+            lastMsg.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+            })
     }, [msgList])
 
     useEffect(() => {
-        if (!localStorage.getItem("token")) {
-            navigate("/login")
-            return
-        }        
-        if (user && user.role === "Counsellor") {
-            navigate("/chat")
-            return
+        if (searchQuery !== "") {
+            const filtered: thread[] = threadList.filter(thread =>
+                thread.created_at.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                thread.last_message_content.toLowerCase().includes(searchQuery.toLowerCase()))
+            setFilteredThreadList(filtered)
         }
-    }, [user])
+        else setFilteredThreadList(threadList)
+    })
 
     return (
         <div className={`hero-bg h-full w-full fixed flex items-center gap-7 p-5`}>
+
             <div className="bg-black/20 h-full w-[120px] rounded-2xl flex flex-col items-center justify-between gap-10 p-8">
                 <div className="bg-blue-50 h-20 w-20 rounded-full"></div>
 
                 <div className="w-full flex-1 rounded-2xl">
                     <div className="w-full h-auto flex flex-col items-center gap-5 *:flex *:justify-center *:items-center *:text-white">
-                        <div onClick={() => navigate("/chat")} className="w-[50px] h-[50px] group :hover:w-[80px] :hover:h-[80px] transition-all duration-200 "><MessageCircleMore size={30} className="group-hover:scale-150 transition-transform duration-200" /></div>
+                        <div onClick={() => navigate("/chat")} className="w-20 h-20 group transition-all duration-200 "><MessageCircleMore size={30} className="group-hover:scale-150 transition-transform duration-200" /></div>
                         <div className="w-20 h-20 items-center rounded-full outline-white outline-2"><Bot size={45} className="group-hover:scale-150 transition-transform duration-200" /></div>
-                        <div onClick={() => navigate("/counsellors")} className="w-[50px] h-[50px] group :hover:w-[80px] :hover:h-[80px] transition-all duration-200"><UserSearch size={30} className="group-hover:scale-150 transition-transform duration-200" /></div>
-                        <div onClick={() => navigate("/study")} className="w-[50px] h-[50px] group :hover:w-[80px] :hover:h-[80px] transition-all duration-200"><CalendarFold size={30} className="group-hover:scale-150 transition-transform duration-200" /></div>
+                        <div onClick={() => navigate("/counsellors")} className="w-20 h-20 group transition-all duration-200"><UserSearch size={30} className="group-hover:scale-150 transition-transform duration-200" /></div>
+                        <div onClick={() => navigate("/study")} className="w-20 h-20 group transition-all duration-200"><CalendarFold size={30} className="group-hover:scale-150 transition-transform duration-200" /></div>
                     </div>
                 </div>
 
-                <div className="hover:scale-130 transition-transform duration-200 hover:border-b-3 border-white" onClick={() => { navigate('/') }}><LogOut size={50} strokeWidth={1.5} className="text-white" /></div>
+                <div className="hover:scale-120 transition-all duration-200 w-20 h-20 rounded-full hover:bg-black flex justify-center items-center" onClick={() => { navigate('/') }}><LogOut size={40} strokeWidth={2} className="text-white" /></div>
             </div>
 
-
-            <div className={`h-full flex-1 flex flex-col items-center gap-5 select-none ${!user || isResponding ? "pointer-events-none" : ""}`}>
-                <div className="w-full h-[75px] flex items-center gap-2">
+            {hasAllThreads && hasThreadInfo && !hasNewThread ?
+            <>
+            <div className={`h-full flex-1 flex flex-col items-center gap-5 justify-between select-none ${!user || isResponding ? "pointer-events-none" : ""}`}>
+                <div className="w-full h-fit flex items-center gap-2">
                     <div className={`h-[75px] w-[75px] rounded-2xl bg-white flex justify-center items-center hover:scale-120 transition-transform duration-200 ${!targetFind ? "pointer-events-none opacity-50" : ""}`}
                     onClick={()=>{
                         setTargetFind("")
                         navigate("/chatai")}}>
                         <Plus size={50} strokeWidth={1} className="text-gray-500"></Plus>
                     </div>
-                    <div className={`h-[75px] w-[75px] rounded-2xl bg-white flex justify-center items-center ${targetFind ? "hover:scale-120 transition-transform duration-200" : "opacity-50"}`}>
+                    <div className={`h-[75px] w-[75px] rounded-2xl bg-white flex justify-center items-center ${targetFind ? "hover:scale-120 transition-transform duration-200" : "opacity-50"}`}
+                    onClick={async () => {
+                        try {
+                            await AxiosInstance.post("/chat/thread/delete", {
+                                "conversation_id": targetFind
+                            })
+
+                            setTargetFind("")
+                            setthreadList((prev) => {
+                                const index = prev.findIndex(t => t.conversation_id === targetFind)
+                                if (index === -1) return prev
+                                const copy = [...prev]
+                                copy.splice(index, 1)
+                                return copy
+                            })
+                            navigate("/chatai")
+                        }
+                        catch (e: any) {
+                            console.log(e.response)
+                        }
+                    }}>
                         <Trash2 size={50} strokeWidth={1} className="text-gray-500"></Trash2>
                     </div>
                     <div className="bg-white flex-1 h-[75px] rounded-2xl px-3 py-4 flex items-center justify-center gap-2">
                         <Search size={32} strokeWidth={1.5} className="text-gray-200" />
-                        <input className="bg-gray-100 w-full h-full rounded-md text-[15px] px-3" placeholder="Tìm kiếm đoạn chat."></input>
+                        <input className="bg-gray-100 w-full h-full rounded-md text-[15px] px-3" placeholder="Tìm kiếm đoạn chat." value={searchQuery}
+                        onChange={(e) => {
+                            setSearchQuery(e.target.value)
+                        }}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                                e.preventDefault()
+                                e.currentTarget.blur()
+                            }
+                        }}></input>
                     </div>
                 </div>
 
-                <div className="bg-white w-full flex-1 rounded-md overflow-y-scroll overflow-x-hidden">
-                    {threadList.length ? (
-                        <div className="flex flex-col gap-2 items-center h-full">
-                            {threadList.map((thread, index) => 
+                <div className="bg-white w-full h-[775px] rounded-md p-2">
+                    {filteredThreadList.length ? (
+                        <div className="flex flex-col gap-2 items-center h-full overflow-y-scroll overflow-x-hidden">
+                            {filteredThreadList.map((thread, index) => 
                             <div className="w-full flex flex-col justify-start items-center gap-2 px-3 py-2">
                                 <div className={`w-full h-full flex flex-col justify-start items-center gap-1 hover:translate-x-1.5 hover:bg-gray-100 p-3 rounded-md transition-all duration-100 ${targetFind === thread.conversation_id ? "bg-gray-200" : ""}`}
                                 onClick={() => {
@@ -301,8 +345,7 @@ export default function ChatPageAI() {
                                 if (!socket) return
                                 if (e.key === "Enter" && !e.shiftKey) {
                                     e.preventDefault()
-
-                                    setIsResponding(true)
+                                    setHasNewThread(true)
                                     socket.emit("start_new_thread", {content: messageContent, time_offset: -new Date().getTimezoneOffset() / 420})
                                     setMessageContent("")
                                 }
@@ -317,6 +360,10 @@ export default function ChatPageAI() {
                     </div>
                 </div>
             )}
+            </>
+            :
+            <div className="w-full h-full text-black flex justify-center items-center font-[350]"><p>LOADING PLEASE WAIT</p></div>
+            }
         </div>
     )
 }

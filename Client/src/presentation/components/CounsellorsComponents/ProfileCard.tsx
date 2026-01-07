@@ -32,7 +32,7 @@ export default function ProfileCard({user_id, username, email}: profileData) {
         {day: "CN", free: false}
     ])
 
-    const userColor : string = "#37a47c"
+    const userColor : string = "#4082bf"
 
     return (
         <div style={{"--flavor": userColor} as React.CSSProperties} onClick={()=>{navigate(`/chat/?chat=${email}`)}}

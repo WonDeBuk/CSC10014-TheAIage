@@ -160,3 +160,14 @@ async def get_summarized_log(user_id: str, payload=Depends(auth_verifier)):
     ).save()
     return result
     
+@chat_router.post("/thread/delete")
+async def delete_threads(data: dict[str, Any], payload=Depends(auth_verifier)):
+    if not payload:
+        raise HTTPException(status_code=401, detail="Not authorized")
+    
+    conversation_id = data.get("conversation_id")
+    thread = ConversationModel.objects(conversation_id=conversation_id).first()
+    if not thread:
+        raise HTTPException(status_code=404, detail="Thread does not exist")
+    
+    thread.delete()

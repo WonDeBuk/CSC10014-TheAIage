@@ -62,6 +62,9 @@ export default function ChatPage() {
 
     const lastMsg = React.useRef<HTMLDivElement>(null)
 
+    const [hasAllConvos, seetHasAllCovo] = useState<boolean>(false)
+    const [hasConvoInfo, setHasConvoInfo] = useState<boolean>(targetFind === null)
+
     const fetchMessages = async () => {
         if (!targetFind) return;
         try {
@@ -71,11 +74,10 @@ export default function ChatPage() {
         catch (e: any) {
             console.log(e)
         }
+        setHasConvoInfo(true)
     }
 
     useEffect(() => {
-        // if (!user) navigate("/login")
-
         const newSocket = io("http://localhost:8000", {
             withCredentials: true,
             auth: {
@@ -134,6 +136,7 @@ export default function ChatPage() {
             catch (e: any) {
                 console.log(e)
             }
+            seetHasAllCovo(true)
         }
 
         fetchConversations()
@@ -170,7 +173,11 @@ export default function ChatPage() {
     }, [targetUser])
 
     useEffect(() => {
-        if (lastMsg.current) lastMsg.current.scrollIntoView()
+        if (lastMsg.current) 
+            lastMsg.current.scrollIntoView(
+                {behavior: "smooth",
+                block: "start", }
+            )
     }, [msgList])
 
     useEffect(() => {
@@ -246,20 +253,21 @@ export default function ChatPage() {
                         <div className="w-20 h-20 items-center rounded-full outline-white outline-2"><MessageCircleMore size={45} /></div>
                         {user?.role === "Student" ?
                             <>
-                                <div onClick={() => navigate("/chatai")} className="w-[50px] h-[50px] group :hover:w-[80px] :hover:h-[80px] transition-all duration-200"><Bot size={30} className="group-hover:scale-150 transition-transform duration-200" /></div>
-                                <div onClick={() => navigate("/counsellors")} className="w-[50px] h-[50px] group :hover:w-[80px] :hover:h-[80px] transition-all duration-200"><UserSearch size={30} className="group-hover:scale-150 transition-transform duration-200" /></div>
+                                <div onClick={() => navigate("/chatai")} className="w-20 h-20 group transition-all duration-200"><Bot size={30} className="group-hover:scale-150 transition-transform duration-200" /></div>
+                                <div onClick={() => navigate("/counsellors")} className="w-20 h-20 group transition-all duration-200"><UserSearch size={30} className="group-hover:scale-150 transition-transform duration-200" /></div>
                             </>
                             : <></>}
-                        <div onClick={() => navigate("/study")}className="w-[50px] h-[50px] group :hover:w-[80px] :hover:h-[80px] transition-all duration-200"><CalendarFold size={30} className="group-hover:scale-150 transition-transform duration-200" /></div>
+                        <div onClick={() => navigate("/study")}className="w-20 h-20 group transition-all duration-200"><CalendarFold size={30} className="group-hover:scale-150 transition-transform duration-200" /></div>
                     </div>
                 </div>
 
-                <div className="hover:scale-130 transition-transform duration-200 hover:border-b-3 border-white" onClick={() => { navigate('/') }}><LogOut size={50} strokeWidth={1.5} className="text-white" /></div>
+                <div className="hover:scale-120 transition-all duration-200 w-20 h-20 rounded-full hover:bg-black flex justify-center items-center" onClick={() => { navigate('/') }}><LogOut size={40} strokeWidth={2} className="text-white" /></div>
             </div>
 
-
-            <div className="h-full flex-1 flex flex-col items-center gap-5 select-none">
-                <div className="bg-white w-full h-[75px] rounded-2xl px-3 py-4 flex items-center justify-center gap-2">
+            {hasAllConvos && hasConvoInfo ?
+            <>
+            <div className="h-full flex-1 flex flex-col items-center justify-between gap-5 select-none">
+                <div className="bg-white w-full h-fit rounded-2xl px-3 py-4 flex items-center justify-center gap-2">
                     <Search size={28} className="text-gray-200" />
                     <input className="bg-gray-100 w-full h-full rounded-md text-[15px] px-3" placeholder="Truy tìm đoạn chat."
                         ref={searchArea} value={searchQuery}
@@ -268,14 +276,15 @@ export default function ChatPage() {
                         }}
                         onKeyDown={(e) => {
                             if (e.key === "Enter") {
-                                e.preventDefault();
+                                e.preventDefault()
+                                e.currentTarget.blur()
                             }
                         }}></input>
                 </div>
 
-                <div className="bg-white w-full flex-1 rounded-md overflow-y-scroll overflow-x-hidden">
+                <div className="bg-white w-full h-[775px] rounded-md">
                     {filteredConvList.length ? (
-                        <div className="flex flex-col gap-2 items-center h-full">
+                        <div className="flex flex-col gap-2 items-center h-full overflow-y-scroll overflow-x-hidden">
                             {filteredConvList.map((conv, index) =>
                                 <div className="w-full flex flex-col justify-start items-center gap-2 p-3"
                                     onClick={() => {
@@ -406,7 +415,10 @@ export default function ChatPage() {
             ) : (
                 <div className="w-[1200px]"></div>
             )}
-
+            </>
+            :
+            <div className="w-full h-full text-black flex justify-center items-center font-[350]"><p>LOADING PLEASE WAIT</p></div>
+            }
         </div>
     )
 }

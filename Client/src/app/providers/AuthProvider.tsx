@@ -62,8 +62,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(userData);
       }
       catch (e) {
-        console.error("fetchAuth: error", e)
         setUser(null);
+        localStorage.removeItem("token")
       }
     }
     setLoading(false)

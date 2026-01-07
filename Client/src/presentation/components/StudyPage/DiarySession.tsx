@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, ChangeEvent } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/app/providers/AuthProvider";
 import { FolderPen, X, Pen, Trash2 } from "lucide-react";
 import AxiosInstance from "@/util/AxiosInstance";
@@ -13,8 +13,6 @@ const DiarySession = () => {
     const [curDiary, setCurValue] = useState<diaryRecord>({date: getLocalDate(0), content: ""})
     const [inHistory, setHistory] = useState<boolean>(false)
     const [diaryHistory, setDiaryHistory] = useState<diaryRecord[]>([curDiary])
-
-    const mostRecent = useRef<HTMLDivElement>(null)
 
     const [isTransmit, setTransmit] = useState<boolean>(false)
 
@@ -37,7 +35,16 @@ const DiarySession = () => {
         const fetchHistory = async () => {
             try {
                 const res = await AxiosInstance.get("/activity/diary/records")
-                setDiaryHistory(res.data)
+                const history = res.data
+                if (history.length && history[history.length - 1].date != getLocalDate(0)) {
+                    setDiaryHistory([{
+                        "date": getLocalDate(0),
+                        "content": ""
+                    }, ...history])
+                }
+                else 
+                    setDiaryHistory(history)
+              
             }
             catch (e: any) {
                 console.log(e.response)
@@ -54,10 +61,6 @@ const DiarySession = () => {
         fetchHistory()
         fetchTodayDiary()
     }, [])
-
-    useEffect(() => {
-        if (inHistory && mostRecent.current) mostRecent.current.scrollIntoView()
-    }, [diaryHistory, inHistory])
 
     return (
         <main className={`flex-1 hero-bg pt-32 p-10 relative ${isTransmit ? "pointer-events-none" : ""}`}>
@@ -78,7 +81,7 @@ const DiarySession = () => {
                         {diaryHistory.length ?
                         <div className="w-full h-full flex flex-col gap-2 items-center overflow-y-scroll overflow-x-hidden px-7 py-2 select-none">
                             <div className="w-full h-[90px] transition-all duration-150 group flex items-center justify-end">
-                                <div className={`w-full h-full flex justify-center items-center transition-[width] duration-300 px-5 py-2 gap-3 bg-gray-300 scale-95 rounded-md`}>
+                                <div className={`w-full h-full flex justify-center items-center transition-[width] duration-300 px-5 py-2 gap-3 bg-gray-300 scale-90 rounded-md`}>
                                     <div className="h-full flex-1">
                                         <p className="text-[22px] font-medium">{curDiary.date.split('-').reverse().join('-')}</p>
                                         <p className="text-[20px] text-gray-500/70 line-clamp-1">{curDiary.content}</p>
@@ -104,14 +107,13 @@ const DiarySession = () => {
                                             copy.splice(index, 1)
                                             return copy
                                             })
-
-                                            const norm = await fetchDatedDiary(0)
-                                            setCurValue({"date": getLocalDate(0), "content": norm ? norm.content : "" })
-                                            setHistory(false)
                                         }
                                         catch (e: any) {
 
                                         }
+                                        const norm = await fetchDatedDiary(0)
+                                        setCurValue({"date": getLocalDate(0), "content": norm ? norm.content : "" })
+                                        setHistory(false)
                                         setTransmit(false)
                                     }}>
                                         <Trash2></Trash2>
@@ -119,9 +121,8 @@ const DiarySession = () => {
                                 </div>
                             </div>
                             {diaryHistory.filter(d => d.date != curDiary.date).map((diary, index) =>
-                            <div className="w-full h-[90px] transition-all duration-150 group flex items-center justify-end"
-                            ref={index === diaryHistory.length - 2 ? mostRecent : null}>
-                                <div className={`w-full h-full flex justify-center items-center transition-[width] duration-300 px-5 py-2 gap-3 ${curDiary.date !== diary.date ? "bg-gray-200 group-hover:bg-white group-hover:w-4/5 group-hover:border-black group-hover:border-2 group-hover:rounded-l-full group-hover:rounded-r-md group-hover:pl-7" : "bg-gray-300 scale-95 rounded-md"}`}>
+                            <div className="w-full h-[90px] transition-all duration-150 group flex items-center justify-end">
+                                <div className={`w-full h-full flex justify-center items-center transition-[width] duration-300 px-5 py-2 gap-3 ${getLocalDate(0) === diary.date ? "bg-[#edeaca]" : "bg-gray-100" } group-hover:bg-white group-hover:w-4/5 group-hover:border-black group-hover:border-2 group-hover:rounded-l-full group-hover:rounded-r-md group-hover:pl-7" : "bg-gray-300 scale-95 rounded-md transition-all`}>
                                     <div className="h-full flex-1">
                                         <p className="text-[22px] font-medium">{diary.date.split('-').reverse().join('-')}</p>
                                         <p className="text-[20px] text-gray-500/70 line-clamp-1">{diary.content}</p>

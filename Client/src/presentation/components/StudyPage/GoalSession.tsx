@@ -95,10 +95,10 @@ const GoalSession = () => {
     }, [nextGoal])
 
     return (
-        <main className="flex-1 hero-bg p-5 overflow-auto select-none pt-15">
+        <main className="flex-1 hero-bg p-5 overflow-auto select-none">
             {hasToday && hasFuture ?
             <div className="w-full h-full flex items-center">
-                <div className="flex-1 h-full flex flex-col justify-center items-center gap-3">
+                <div className="flex-1 h-full flex flex-col justify-center items-center gap-3 pt-5">
                     <div className="h-[30px] w-full text-left"></div>
                     <div className="w-full h-[725px] gap-5 flex justify-between">
                         <div className="w-1/2 h-full flex flex-col items-center p-2 gap-2">
@@ -191,7 +191,7 @@ const GoalSession = () => {
                         </div>
                     </div>
                 </div>
-                <div className="w-[600px] h-full flex flex-col justify-end items-center pt-10 p-5 gap-2">
+                <div className="w-[600px] h-full flex flex-col justify-center items-center p-5 gap-2">
                     <div className="w-full h-[60px] flex justify-end items-center gap-2">
                         <div className={`w-[120px] h-full rounded-full shadow-md flex justify-center items-center font-medium text-[20px] ${miniBar === "preview" ? "bg-white/60 scale-90 text-gray-500 border-2 border-gray-600" : "bg-white/80 hover:scale-90 hover:border-2 border-black transition-all duration-100"}`}
                             onClick={() => {
@@ -317,9 +317,9 @@ const GoalSession = () => {
                                                         onClick={() => setMiniBar("")}></X>
                                                 </div>
                                                 {weight > 0 ?
-                                                    <div className={`flex items-end h-10 justify-center text-[30px] gap-2 font-medium ${weight >= 20 ? "text-red-500 scale-120" : "text-black"}`}>
+                                                    <div className={`flex items-end h-10 justify-center text-[30px] gap-2 font-medium ${weight >= 15 ? "text-red-500 scale-120" : "text-black"}`}>
                                                         <Weight size={30} strokeWidth={2.5}></Weight>
-                                                        <p className="leading-none">{weight >= 20 ? weight + ` !` : weight}</p>
+                                                        <p className="leading-none">{weight >= 15 ? weight + ` !` : weight}</p>
                                                     </div>
                                                     :
                                                     <></>

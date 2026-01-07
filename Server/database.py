@@ -21,6 +21,7 @@ class UserModel(Document):
     role = StringField(choices=["Student", "Counsellor", "AI"], default="Student")
     description = StringField()
     expertise = ListField(StringField())
+    flavor = StringField(default="#bf4141")
     created_at = DateTimeField(default=lambda: datetime.now(timezone.utc))
     meta = {
         "db_alias": "AccountDB",
@@ -31,9 +32,9 @@ class UserModel(Document):
     }
 
     @classmethod
-    def create_user(cls, username: str, email: str, plain_password: str, role: str, desc : str = "", tags : list[str] | None = None):
+    def create_user(cls, username: str, email: str, plain_password: str, role: str, desc : str = "", tags : list[str] | None = None, flavor: str = "#bf4141"):
         hashed = generate_password_hash(plain_password, method="pbkdf2:sha256", salt_length=16)
-        return cls(username=username, email=email, hashed_password=hashed, role=role, description=desc, expertise=tags or [])
+        return cls(username=username, email=email, hashed_password=hashed, role=role, description=desc, expertise=tags or [], flavor=flavor)
 
     def check_user_password(self, plain_password: str):
         return check_password_hash(self.hashed_password, plain_password)
@@ -187,25 +188,33 @@ class PlantModel(Document):
         #add the plant into the user stats
         
         self.reset_stat()
-   
 
-
-
-class MoodModel(Document):
+class MoodLog(Document):
     mood_id = ObjectIdField(primary_key=True, default=ObjectId)
-    user_id = StringField(required=True)
-    day_created = StringField(required=True)
-    mood_score = IntField(default=1,min_value=1,max_value=10)
+
+    user_id = ReferenceField(
+        "UserModel",
+        required=True,
+        reverse_delete_rule=CASCADE
+    )
+
+    score = IntField(required=True, min_value=1, max_value=10)
     note = StringField()
+    day_created = DateField(default=lambda: datetime.now(timezone.utc).date())
+    created_at = DateTimeField(default=lambda: datetime.now(timezone.utc))
+
     meta = {
         "db_alias": "AccountDB",
-        "collection": "Moods",
+        "collection": "MoodLogs",
         "indexes": [
             "user_id",
-            "-day_created"
+            "-day_created",
+            {
+                "fields": ["user_id", "day_created"],
+                "unique": True  # 1 mood / user / day
+            }
         ]
     }
-
 class ActivityModel(Document):
     activity_id = ObjectIdField(primary_key=True, default=ObjectId)
 

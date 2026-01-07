@@ -239,7 +239,7 @@ async def get_diary_record(payload=Depends(auth_verifier)):
     
     user_id = payload.get("user_id")
     print("User requires diary records:", user_id)
-    diary_queryset = DiaryModel.objects(user_id=user_id).order_by("day_created")
+    diary_queryset = DiaryModel.objects(user_id=user_id).order_by("-day_created")
     if not diary_queryset:
         raise HTTPException(status_code=404, detail="No diary record found")
     
@@ -292,3 +292,4 @@ async def modify_dated_record(data: dict[str, Any], payload=Depends(auth_verifie
                 diary.save()
             case "delete":
                 diary.delete()
+                

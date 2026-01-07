@@ -8,6 +8,7 @@ from routes.auth import auth_router
 from routes.connection import connection_router
 from routes.chat import chat_router
 from routes.activity import activity_router
+from routes.mood import mood_router
 from util.token import verify_token
 from helper.summarizer import summarizer
 from helper.analyzer import estimate_research_time
@@ -36,6 +37,7 @@ app.include_router(auth_router)
 app.include_router(connection_router)
 app.include_router(chat_router)
 app.include_router(activity_router)
+app.include_router(mood_router)
 
 sio_app = socketio.ASGIApp(sio, app)
 
