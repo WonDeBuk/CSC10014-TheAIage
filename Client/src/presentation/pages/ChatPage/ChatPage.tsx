@@ -261,7 +261,7 @@ export default function ChatPage() {
                     </div>
                 </div>
 
-                <div className="hover:scale-120 transition-all duration-200 w-20 h-20 rounded-full hover:bg-black flex justify-center items-center" onClick={() => { navigate('/') }}><LogOut size={40} strokeWidth={2} className="text-white" /></div>
+                <div className="hover:scale-120 transition-all duration-200 w-20 h-20 rounded-lg hover:bg-black/60 flex justify-center items-center" onClick={() => { navigate('/') }}><LogOut size={40} strokeWidth={2} className="text-white" /></div>
             </div>
 
             {hasAllConvos && hasConvoInfo ?

@@ -34,6 +34,8 @@ class UserModel(Document):
     @classmethod
     def create_user(cls, username: str, email: str, plain_password: str, role: str, desc : str = "", tags : list[str] | None = None, flavor: str = "#bf4141"):
         hashed = generate_password_hash(plain_password, method="pbkdf2:sha256", salt_length=16)
+        if tags:
+            sorted(tags, key=str.lower)
         return cls(username=username, email=email, hashed_password=hashed, role=role, description=desc, expertise=tags or [], flavor=flavor)
 
     def check_user_password(self, plain_password: str):

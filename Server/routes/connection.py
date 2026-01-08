@@ -10,33 +10,38 @@ connection_router = APIRouter(prefix="/connection", tags=["connection"])
 async def get_counsellor_accounts(payload=Depends(auth_verifier)):
     if not payload:
         raise HTTPException(status_code=401, detail="Unverified user.")
+
+    counsellor_queryset = UserModel.objects(role="Counsellor").limit(21)
+
     
-    counsellor_queryset = UserModel.objects(role="Counsellor")
     counsellor_list = []
     for acc in counsellor_queryset:
         counsellor_list.append({
             "user_id": str(acc.user_id),
             "username": acc.username,
-            "email": acc.email
+            "email": acc.email,
+            "description": acc.description,
+            "expertise": acc.expertise,
+            "flavor": acc.flavor
         })
 
-    return {"list": counsellor_list}
+    return counsellor_list
 
 @connection_router.get("/student")
 async def get_student_accounts(payload=Depends(auth_verifier)):
     if not payload:
         raise HTTPException(status_code=401, detail="Unverified user.")
     
-    counsellor_queryset = UserModel.objects(role="Student")
-    counsellor_list = []
-    for acc in counsellor_queryset:
-        counsellor_list.append({
+    student_queryset = UserModel.objects(role="Student")
+    student_list = []
+    for acc in student_queryset:
+        student_list.append({
             "user_id": str(acc.user_id),
             "username": acc.username,
             "email": acc.email
         })
 
-    return {"list": counsellor_list}
+    return student_list
 
 @connection_router.get("/acquaintance")
 async def get_acquaintance(payload=Depends(auth_verifier)):
@@ -67,5 +72,5 @@ async def get_acquaintance(payload=Depends(auth_verifier)):
                 "username": interact.attendee.username
             })
 
-    return {"list": acquaintance_list}
+    return acquaintance_list
     

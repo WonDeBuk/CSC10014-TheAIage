@@ -45,7 +45,7 @@ const StudyPage: React.FC = () => {
         <div className="min-h-full w-full flex hero-bg font-sans 
                         text-slate-800 overflow-hidden relative">
             {/* Sidebar */}
-            <div className="absolute top-0 left-0 right-0 z-50 flex justify-center pt-4">
+            <div className="absolute top-0 left-86 right-0 z-50 flex justify-center pt-4">
                 <NaviBar isStatic={true} />
             </div>
             <aside className="w-86 border-r border-slate-200 

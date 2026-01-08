@@ -10,14 +10,6 @@ interface user {
   email: string
 }
 
-interface task {
-  name: string,
-  date: Date,
-  start: string,
-  end: string,
-  desc: string,
-  diffculty: number
-}
 
 export default function FileUpload() {
   const [counsellorList, setCounsList] = useState<user[]>([])
@@ -40,9 +32,9 @@ export default function FileUpload() {
     <div className="h-full w-full p-2.5">
       {counsellorList.length ? (
         <div className="flex gap-1 justify-center items-start">
-        {counsellorList.map((items, index) => 
+        {/* {counsellorList.map((items, index) => 
           <ProfileCard {...items}/>
-        )}
+        )} */}
         </div>
       ) : (
         <div>Loading...</div>

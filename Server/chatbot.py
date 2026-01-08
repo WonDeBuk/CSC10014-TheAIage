@@ -52,7 +52,7 @@ QUY TẮC BẮT BUỘC:
 - Xuống dòng chỉ bằng ký tự newline bình thường.
 
 Bước 1: Thu thập thông tin triệu chứng của người dùng.
-Bước 2: Khi đủ thông tin, dùng retrieve_context và update_diagnosis.
+Bước 2: Nếu người dùng mô tả ít nhất một triệu chứng rõ ràng hoặc trạng thái cảm xúc kéo dài, PHẢI dùng retrieve_context và update_diagnosis để đưa ra đánh giá sơ bộ. Không chờ đủ dữ liệu hoàn hảo.
 Bước 3: Đánh giá theo 4 mức độ: kém, trung bình, bình thường, tốt.
 """
 

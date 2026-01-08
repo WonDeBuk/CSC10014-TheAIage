@@ -164,9 +164,16 @@ async def client_send_message(sid, data):
 
             inputs = {"messages": msg_list[::-1], "user_id": user_id}  # Reverse to maintain chronological order
             ai_msg = ""
+            hasDiagnosis = False
+
             async for event in agent.astream(inputs, {"configurable": {"thread_id": str(conversation.conversation_id), "user_id": user_id}}, stream_mode="values"):
+                if not hasDiagnosis and event.get("total_guess"):
+                    hasDiagnosis = True
+                    await sio.emit("update_diagnosis", {}, to=sid)
+
                 if "messages" not in event:
                     continue  # skip state-only events
+
                 last_message = event["messages"][-1]
                 if last_message.type == "ai":
                     if isinstance(last_message.content, str):
@@ -226,9 +233,16 @@ async def start_new_thread(sid, data):
     msg_list = [("user", content)]        
     inputs = {"messages": msg_list, "user_id": user_id}
     ai_msg = ""
+    hasDiagnosis = False
+    
     async for event in agent.astream(inputs, {"configurable": {"thread_id": str(conversation.conversation_id), "user_id": user_id}}, stream_mode="values"):
+        if not hasDiagnosis and event.get("total_guess"):
+            hasDiagnosis = True
+            await sio.emit("update_diagnosis", {}, to=sid)
+
         if "messages" not in event:
             continue  # skip state-only events
+
         last_message = event["messages"][-1]
         if last_message.type == "ai":
             if isinstance(last_message.content, str):

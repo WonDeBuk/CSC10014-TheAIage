@@ -114,6 +114,10 @@ export default function ChatPageAI() {
             setHasAllThreads(true)
         }
 
+        newSocket.on("update_diagnosis", (data) => {
+            console.log("oh wow new updates")
+        })
+
         fetchConversations()
         if (targetFind) fetchMessages()
         setSocket(newSocket);
@@ -158,7 +162,7 @@ export default function ChatPageAI() {
             setFilteredThreadList(filtered)
         }
         else setFilteredThreadList(threadList)
-    })
+    }, [threadList, searchQuery])
 
     return (
         <div className={`hero-bg h-full w-full fixed flex items-center gap-7 p-5`}>
@@ -175,7 +179,7 @@ export default function ChatPageAI() {
                     </div>
                 </div>
 
-                <div className="hover:scale-120 transition-all duration-200 w-20 h-20 rounded-full hover:bg-black flex justify-center items-center" onClick={() => { navigate('/') }}><LogOut size={40} strokeWidth={2} className="text-white" /></div>
+                <div className="hover:scale-120 transition-all duration-200 w-20 h-20 rounded-lg hover:bg-black/60 flex justify-center items-center" onClick={() => { navigate('/') }}><LogOut size={40} strokeWidth={2} className="text-white" /></div>
             </div>
 
             {hasAllThreads && hasThreadInfo && !hasNewThread ?

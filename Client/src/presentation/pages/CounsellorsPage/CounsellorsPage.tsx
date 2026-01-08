@@ -1,122 +1,150 @@
-import React, { useState } from "react";
-import CounselorCard from "@/presentation/components/CounsellorsComponents/CounsellorCard";
+import React, { useState, useEffect } from "react";
+import AxiosInstance from "@/util/AxiosInstance";
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import ProfileCard from "@/presentation/components/CounsellorsComponents/ProfileCard";
 import NavBar from "@/presentation/components/LandingPage/NaviBar";
 import Footer from "@/presentation/components/LandingPage/Footer";
-interface StyleConfig {
-  card_background: string;
-  text_color: string;
-  font_family: string;
-  font_size: number;
+import { useAuth } from "@/app/providers/AuthProvider";
+import { Search, ListFilter } from "lucide-react";
+
+interface user {
+  user_id: string,
+  username: string,
+  email: string
+  description: string,
+  expertise: string[],
+  flavor: string
 }
 
-interface CardData {
-  name: string;
-  specialty: string;
-  description: string;
-  expertise: string[];
-  availability: string;
-  languages: string;
-  themeColor: string;
-  badgeText: string;
+interface page {
+  index: number,
+  count: number,
+  items: number
 }
 
-const COUNSELOR_DATA: CardData[] = [
-  {
-    name: "Bác sĩ Đạt",
-    specialty: "Tiến sĩ tâm lý học lâm sàng",
-    description:
-      "Chuyên về lo âu, trầm cảm và liệu pháp hành vi nhận thức. Bác sĩ Đạt có hơn 12 năm kinh nghiệm trong việc giúp mọi người vượt qua các vấn đề về sức khỏe tinh thần.",
-    expertise: ["Rối loạn lo âu", "Trầm cảm", "CBT"],
-    availability: "Thứ 2 - Thứ 6",
-    languages: "Tiếng Việt, Tiếng Anh",
-    themeColor: "#8b5cf6",
-    badgeText: "Đánh giá cao",
-  },
-  {
-    name: "Bác sĩ Hiền",
-    specialty: "Nhà trị liệu gia đình được cấp phép (LMFT)T",
-    description:
-      "Chuyên gia trong lĩnh vực động lực gia đình, trị liệu cho các cặp đôi và tư vấn mối quan hệ. Bác sĩ Hiền có 10 năm kinh nghiệm trong việc giúp các gia đình xây dựng mối liên kết bền chặt hơn.",
-    expertise: ["Trị liệu cặp đôi", "Tư vấn gia đình", "Giao tiếp"],
-    availability: "Thứ 3 - Thứ 7",
-    languages: "Tiếng Việt, Tiếng Anh",
-    themeColor: "#10b981",
-    badgeText: "Được chứng nhận",
-  },
-  {
-    name: "Bác sĩ Trinh",
-    specialty: "Chuyên gia chấn thương tâm lý, Tiến sĩ Tâm lý (Psy.D.)",
-    description:
-      "Chuyên về hồi phục sau chấn thương, PTSD (rối loạn căng thẳng sau sang chấn), và liệu pháp EMDR. Bác sĩ Trinh đã dành 8 năm kinh nghiệm để giúp mọi người hồi phục từ những trải nghiệm chấn thương bằng các phương pháp dựa trên bằng chứng.",
-    expertise: ["PTSD", "Liệu pháp EMDR", "Hồi phục sau tổn thương"],
-    availability: "Thứ hai - Thứ năm",
-    languages: "Tiếng Việt, Tiếng Anh",
-    themeColor: "#f97316",
-    badgeText: "Chuyên gia",
-  },
-];
+const CounsellorsPage = () => {
+  const { user } = useAuth()
+  const [curPage, setCurPage] = useState<page>({"index": 0, "count": 3, "items": 0})
+  const [counsellorList, setCounsList] = useState<user[]>([])
+  const [filteredList, setFilteredList] = useState<user[]>([]) //list achieved from filter
+  const [displayList, setDisplayList] = useState<user[]>([])
+  const [searchQuery, setSearchQuery] = useState("")
+  const [filterList, setFilterList] = useState<string[]>([]) //user selection
+  const [displayPage, setDisplayPage] = useState<string>("1")
 
-const mockStyles: StyleConfig = {
-  card_background: "#ffffff",
-  text_color: "#1e293b",
-  font_family: "system-ui, -apple-system, sans-serif",
-  font_size: 16,
-};
+  const [isFilter, setIsFilter] = useState(false)
 
-export default function CounselorCardsSection() {
-  const [toast] = useState<string | null>(null);
+  const mentalDisorders = [ 
+    "Anxiety",
+    "Bipolar",
+    "Depressive",
+    "Dissociative",
+    "Eating",
+    "Elimination",
+    "Gender Dysphoria",
+    "Impulse-Control",
+    "Neurocognitive",
+    "Neurodevelopmental",
+    "Obsessive-Compulsive",
+    "Paraphilic",
+    "Personality",
+    "Psychotic",
+    "Sexual",
+    "Sleep-Wake",
+    "Somatic",
+    "Substance-Addictive",
+    "Trauma-Stressor"
+  ]
+
+    const isSubset = (subset: string[], superset: string[]) => {
+      const superSet = new Set(superset)
+      return subset.every(item => superSet.has(item))
+    }
+
+    useEffect(() => {
+    const fetchCounsellors = async () => {
+      try {
+        const list = await AxiosInstance.get("/connection/counsellor")
+        setCounsList(list.data)
+        setCurPage((prev) => ({...prev, "items": list.data.length}))
+      }
+      catch (e: any) {
+        console.log(e)
+      }
+    }
+
+    fetchCounsellors()
+  },[])
+
+  useEffect(() => {
+    if (searchQuery !== "") {
+      const filtered = counsellorList.filter(c => (c.username.toLowerCase().includes(searchQuery.toLowerCase()) || c.email.toLowerCase().includes(searchQuery.toLowerCase())) && (filterList.length === 0 || isSubset(filterList, c.expertise)))
+      setFilteredList(filtered)
+    }
+    else setFilteredList(counsellorList)
+    setCurPage((prev) => ({...prev, index: 0, items: filteredList.length}))
+  }, [searchQuery, counsellorList, filterList])
+
+  useEffect(() => {
+    const start = curPage.index * curPage.count
+    const end = curPage.count + start
+    const copy = [...filteredList]
+    setDisplayList(copy.slice(start, end))
+  }, [filteredList, curPage])
+
+  useEffect(() => {
+    setDisplayPage(String(curPage.index + 1))
+  }, [curPage])
 
   return (
-    <>
-      <div className="mb-10">
-      <NavBar/>
+    <div className="w-full min-h-full flex gap-5 justify-between flex-col pt-40 overflow-y-auto overflow-x-hidden hero-bg">
+      <NavBar></NavBar>
+      <div className="w-full h-[120px] flex justify-center items-center text-[36px] font-[720] italic p-5"><p>CÁC CHUYÊN GIA TƯ VẤN TRÊN NỀN TẢNG</p></div>
+
+      <div className="w-full h-[130px] flex items-center justify-center gap-2">
+        <Search className="text-white" size={42}></Search>
+        <input className="w-[900px] h-10 bg-white rounded-md text-[20px] p-2" placeholder="Tìm kiếm tư vấn viên." value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}/>
+        <ListFilter className="text-white hover:text-black hover:scale-120 transition-all duration-200" size={42}
+        onClick={() => setIsFilter(!isFilter)}></ListFilter>
       </div>
 
-      <section className="py-16 px-6" style={{ backgroundColor: "#f8fafc" }}>
-        <div className="max-w-6xl mx-auto">
-          <h2
-            className="text-center mb-4"
-            style={{
-              fontSize: "2.5rem",
-              fontWeight: 700,
-              color: mockStyles.text_color,
-            }}
-          >
-              GẶP CHUYÊN GIA CỦA CHÚNG TÔI
-          </h2>
-          <p
-            className="text-center mb-12 max-w-2xl mx-auto"
-            style={{ fontSize: "1.125rem", color: "#64748b" }}
-          >
-            Những chuyên gia tận tâm, ân cần với sức khỏe tinh thần của bạn
-          </p>
+      {isFilter ? 
+      <div className="">
 
-          <div
-            className="counselors-grid"
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-              gap: "2rem",
-            }}
-          >
-            {COUNSELOR_DATA.map((data, index) => (
-              <CounselorCard
-                key={index}
-                data={data}
-                styles={mockStyles}
-              />
-            ))}
+      </div>
+      :
+      <></>
+      }
+
+      <div className="w-full max-w-[1200px] mx-auto grid grid-cols-3 grid-rows-1 justify-items-center gap-6 px-6">
+        {displayList.map((c, _) =>
+          <ProfileCard {...c} chattable={user?.role === "Student"}/>
+        )}
+      </div>
+
+      <div className="w-full h-[100px] p-4 flex items-center justify-center select-none">
+        <div className="w-[450px] h-full flex justify-between">
+          <div onClick={() => setCurPage((prev) => ({...prev, index: prev.index - 1}))} className={`text-white font-[525] flex justify-center items-center p-3 w-[100px] rounded-md hover:scale-115 transition-all duration-100 ${curPage.index === 0 ? "pointer-events-none opacity-50 bg-gray-500 scale-90" : "bg-blue-500"}`}><p>PREV</p></div>
+          <div className="bg-white w-[120px] rounded-md p-3 flex justify-center items-center">
+            <input className="h-full text-center rounded-md bg-gray-100 w-10" value={displayPage}
+            onChange={(e) => {
+              if (e.target.value === "") setDisplayPage("")
+              else if (Number.isNaN(Number(e.target.value)) || Number(e.target.value) <= 0 || Number(e.target.value) > Math.floor(curPage.items / curPage.count)) {
+                setDisplayPage(String(curPage.index + 1))
+              }
+              else setCurPage((prev) => ({...prev, index: Number(e.target.value) - 1}))
+            }}/>
+            <div className="text-center flex items-center justify-center text-black w-[25px]"> / </div>
+            <div className="text-center flex items-center justify-center text-black w-10"><p>{Math.floor(curPage.items / curPage.count)}</p></div>
           </div>
+          <div onClick={() => setCurPage((prev) => ({...prev, index: prev.index + 1}))} className={`text-white font-[525] flex justify-center items-center p-3 w-[100px] rounded-md hover:scale-115 transition-all duration-100 ${Math.ceil(curPage.items / curPage.count) - 1 === curPage.index ? "pointer-events-none opacity-50 bg-gray-500 scale-90": "bg-blue-500"}`}><p>NEXT</p></div>
         </div>
-      </section>
-            
-      {toast && (
-        <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity">
-          {toast}
-        </div>
-      )}
+      </div>
 
-      <Footer />
-    </>
-  );
-}
+      <Footer></Footer>
+    </div>
+  )
+} 
+
+export default CounsellorsPage

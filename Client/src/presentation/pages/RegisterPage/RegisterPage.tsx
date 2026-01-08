@@ -42,26 +42,26 @@ function hslToHex(h: number, s: number, l: number): string {
 }
 
 export default function RegisterPage() {
-    const mentalDisorders = [ 
-        "Neurodevelopmental",
-        "Psychotic",
+    const mentalDisorders = [
+        "Anxiety",
         "Bipolar",
         "Depressive",
-        "Anxiety",
-        "Obsessive-Compulsive",
-        "Trauma-Stressor",
         "Dissociative",
-        "Somatic",
         "Eating",
         "Elimination",
-        "Sleep-Wake",
-        "Sexual",
         "Gender Dysphoria",
         "Impulse-Control",
-        "Substance-Addictive",
         "Neurocognitive",
+        "Neurodevelopmental",
+        "Obsessive-Compulsive",
+        "Paraphilic",
         "Personality",
-        "Paraphilic"
+        "Psychotic",
+        "Sexual",
+        "Sleep-Wake",
+        "Somatic",
+        "Substance-Addictive",
+        "Trauma-Stressor"
     ]
     const [formData, setFormData] = useState<FormData>({ username: "", email: "", password: "", role: "Student", description: "", expertise: [], flavor: 1 });
     const [errorMessage, setErrorMessage] = useState<string>("");
@@ -70,8 +70,6 @@ export default function RegisterPage() {
     const { refreshAuth } = useAuth();
 
     const errorTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-    const autoScroll = useRef<HTMLDivElement>(null)
-    const [firstTime, setFirstTime] = useState(false)
 
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -96,7 +94,7 @@ export default function RegisterPage() {
         
     
         try {
-            const response = await AxiosInstance.post("/auth/register", formData)
+            const response = await AxiosInstance.post("/auth/register", {...formData, flavor: hslToHex(formData.flavor, 50, 50)})
             localStorage.setItem("token", response.data.token);
             await refreshAuth();
             navigate('/')
@@ -127,35 +125,24 @@ export default function RegisterPage() {
         }
     }, [errorMessage])
 
-    useEffect(() => {
-        if (autoScroll.current && !firstTime) {
-            setFirstTime(true)
-            autoScroll.current.scrollIntoView({
-                behavior: "smooth",
-                block: "start",
-            })
-        }
-    })
-
     return (
         <div className="w-full min-h-full flex flex-col gap-5 bg-[#edeffd] select-none">
             {errorMessage ? (<div className="bg-red-500/80 p-2 text-white rounded-md fixed top-5 left-5 transtion-all duration-150 flex justify-center items-center"><p>{errorMessage}</p></div>): (<></>)}
-            <div className="h-full flex flex-col items-center gap-15 pt-20 p-5 w-full"
+            <div className="h-full flex flex-col items-center gap-15 p-5 w-full"
             style={{"--flavor": hslToHex(formData.flavor, 50, 50)} as React.CSSProperties}>
                 <div className="w-full flex flex-col items-center">
                     <img src={logo} className="h-[150px]"/>
                     <div className="text-[26px] text-gray-500 font-extralight">Chào mừng bạn đến với TheAIage</div>
                 </div>
 
-                <div className="flex flex-col gap-4 bg-white w-[620px] p-5 rounded-md">
+                <div className="flex flex-col gap-2 bg-white w-[620px] p-5 rounded-md">
                     <div className="w-full flex flex-col gap-2">
                         <div className="text-[28px] font-medium">Registration</div>
                         <div className="w-full h-px bg-gray-300"></div>
                     </div>
-                    <form className="w-full flex flex-col gap-10"
+                    <form className="w-full flex flex-col gap-5"
                     onSubmit={handleSubmit}>
-                        <div className="w-full flex flex-col gap-1"
-                        ref={formData.role === "Student" ? autoScroll : null}>
+                        <div className="w-full flex flex-col gap-1">
                             <label className="text-[20px] font-[470]">Tên:</label>
                             <input className="w-full rounded-md h-[50px] bg-[#efebef] px-2 text-[18px]"
                             maxLength={20}type="text" name="username" value={formData.username} placeholder="Tên tối đa 20 kí tự."
@@ -193,8 +180,7 @@ export default function RegisterPage() {
 
                         {formData.role === "Counsellor" ? (
                             <>
-                                <div className="w-full flex flex-col gap-1"
-                                ref={formData.role === "Counsellor" ? autoScroll : null}>
+                                <div className="w-full flex flex-col gap-1">
                                     <p className="text-[20px] font-[470]">Kinh nghiệm:</p>
                                     <textarea className="w-full h-[120px] bg-[#efebef] text-[18px] p-2 rounded-md" 
                                     name="description" value={formData.description} placeholder="Mô tả kinh nghiệm làm việc của bạn."
@@ -213,7 +199,7 @@ export default function RegisterPage() {
                                     </div>
                                 </div>
 
-                                <div className="w-full flex flex-col gap-1 items-center">
+                                <div className="w-full flex flex-col gap-2 items-center">
                                     <p className="text-[20px] font-[470] w-full">Hương vị:</p>
                                     <div className="w-full h-10 rounded-md bg-(--flavor)"></div>
                                     <input type="range" min={1} max={255} value={formData.flavor}
@@ -225,7 +211,7 @@ export default function RegisterPage() {
                             </>
                         ) : (<></>)}
 
-                        <div className="w-full flex flex-col gap-10 items-center mt-5">
+                        <div className="w-full flex flex-col gap-2 items-center mt-5">
                             <div className="w-full h-px bg-gray-300"></div>
                             <input className="w-full h-[75px] bg-black flex justify-center items-center text-white rounded-2xl text-[24px] font-[450] hover:bg-white hover:text-black hover:border-2 hover:border-black transition-all duration-150"
                             type="submit"
@@ -234,6 +220,11 @@ export default function RegisterPage() {
                         </div>
                         
                     </form>
+                </div>
+                
+                <div className="w-full flex gap-1 justify-center flex-col items-center">
+                    <div className="w-fit text-center font-[350] text-[22px]">ĐÃ CÓ TÀI KHOẢN ?</div>
+                    <a className="w-fit text-center font-[400px] text-blue-500 text-[20px] hover:text-blue-300 transition-all duration-75 hover:scale-120" href="/login">Đăng Nhập</a>
                 </div>
             </div>
             <Footer></Footer>
