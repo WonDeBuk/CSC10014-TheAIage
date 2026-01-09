@@ -91,6 +91,15 @@ export default function NavBar({ isStatic = false }: { isStatic?: boolean }) {
               {user && (
               <>
                 <a
+                    href="/test"
+                    className="inline-block font-medium 
+                            text-black hover:underline 
+                              underline-offset-4 text-center"
+                  >
+                    Test
+                  </a>
+
+                <a
                 href="/chat"
                 className="inline-block font-medium 
                         text-black underline-offset-4 hover:underline
@@ -100,7 +109,7 @@ export default function NavBar({ isStatic = false }: { isStatic?: boolean }) {
                 </a>
 
                 <div className="flex items-center gap-6">
-                  <a href="/dashboard" className="flex items-center gap-2">
+                  <a href="/personal" className="flex items-center gap-2">
                     <img
                       src={userIcon}
                       alt="userIcon"
@@ -185,6 +194,15 @@ export default function NavBar({ isStatic = false }: { isStatic?: boolean }) {
               {user && (
                 <>
                   <a
+                    href="/test"
+                    className="inline-block font-medium 
+                            text-black hover:underline 
+                              underline-offset-4 text-center"
+                  >
+                    Test
+                  </a>
+
+                  <a
                     href="/chat"
                     className="inline-block font-medium 
                             text-black hover:underline 
@@ -194,7 +212,7 @@ export default function NavBar({ isStatic = false }: { isStatic?: boolean }) {
                   </a>
 
 
-                  <div className="flex flex-col items-center gap-2" onClick={() => navigate('/dashboard')}>
+                  <div className="flex flex-col items-center gap-2" onClick={() => navigate('/personal')}>
                     <img
                       src={userIcon}
                       alt="userIcon"

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import '@/presentation/pages/ChatPage/ChatPage.css';
 import { useAuth } from "@/app/providers/AuthProvider";
@@ -47,7 +47,7 @@ export default function ChatPage() {
     const navigate = useNavigate()
     const [msgList, setMsgList] = useState<message[]>([])
     const [convList, setConvList] = useState<conversation[]>([])
-    const [targetUser, setTargetUser] = useState<profile | null>(null)
+    const targetUser = useRef<profile | null>(null)
     const [socket, setSocket] = useState<Socket | null>(null);
 
     const [isPopup, setIsPopup] = useState<boolean>(false)
@@ -60,7 +60,7 @@ export default function ChatPage() {
     const textArea = React.useRef<HTMLTextAreaElement>(null);
     const searchArea = React.useRef<HTMLInputElement>(null);
 
-    const lastMsg = React.useRef<HTMLDivElement>(null)
+    const lastMsg = useRef<HTMLDivElement>(null)
 
     const [hasAllConvos, seetHasAllCovo] = useState<boolean>(false)
     const [hasConvoInfo, setHasConvoInfo] = useState<boolean>(targetFind === null)
@@ -99,9 +99,8 @@ export default function ChatPage() {
                 sender_id: data.sender_id,
                 content: data.content
             }
-            console.log(data, "but user is in: ", targetUser?.user_id || "")
-
-            if (targetUser && targetUser.user_id === data.sender_id) setMsgList(prev => [...prev, newMessage])
+            console.log(targetUser, data)
+            if (targetUser.current && targetUser.current.user_id === data.sender_id) setMsgList(prev => [...prev, newMessage])
             setConvList(prev => {
                 const index = prev.findIndex(c => c.other_user_id == data.sender_id);
                 if (index === -1) return prev
@@ -124,7 +123,7 @@ export default function ChatPage() {
                     role: data.other_role,
                     conversation_id: data.conversation_id
                 }
-                setTargetUser(newPayload)
+                targetUser.current = newPayload
             }
         });
 
@@ -158,19 +157,16 @@ export default function ChatPage() {
             if (!targetFind) return;
             try {
                 const profileData = await AxiosInstance.get(`/auth/info/${targetFind}`)
-                setTargetUser(profileData.data)
+                targetUser.current = profileData.data
             }
             catch (e: any) {
                 console.log(e)
-                return;
             }
         }
-        if (!targetUser) fetchTargetUser() //new conversation case, as in the conversation does not exist yet
-    }, [targetFind])
 
-    useEffect(() => {
-        if (targetUser) fetchMessages()
-    }, [targetUser])
+        fetchTargetUser()
+        fetchMessages()
+    }, [targetFind])
 
     useEffect(() => {
         if (lastMsg.current) 
@@ -191,7 +187,7 @@ export default function ChatPage() {
     }, [convList, searchQuery])
 
     return (
-        <div className="hero-bg h-full w-full flex items-center gap-7 p-5 relative overflow-hidden">
+        <div className="hero-bg h-full w-full flex items-center gap-7 p-5 relative overflow-hidden" onClick={() => console.log(targetUser)}>
             {isPopup ? <>
                 <div className="bg-black/20 w-full h-full absolute scale-200"
                     onClick={() => (setIsPopup(false))}></div>
@@ -282,24 +278,17 @@ export default function ChatPage() {
                         }}></input>
                 </div>
 
-                <div className="bg-white w-full h-[775px] rounded-md">
+                <div className="w-full h-[790px] rounded-md">
                     {filteredConvList.length ? (
                         <div className="flex flex-col gap-2 items-center h-full overflow-y-scroll overflow-x-hidden">
                             {filteredConvList.map((conv, index) =>
-                                <div className="w-full flex flex-col justify-start items-center gap-2 p-3"
+                                <div className="w-full flex flex-col justify-start items-center gap-2 rounded-md py-2"
                                     onClick={() => {
-                                        setTargetUser({
-                                            user_id: conv.other_user_id,
-                                            username: conv.other_username,
-                                            email: conv.other_email,
-                                            role: conv.other_role,
-                                            conversation_id: conv.conversation_id
-                                        })
                                         navigate(`/chat/?chat=${conv.other_email}`)
                                     }}
                                     key={index}>
 
-                                    <div className={`w-full flex-1 flex flex-col gap-2 hover:bg-gray-100 cursor-pointer rounded-2xl py-3 px-2 hover:-translate-y-1.5 transition-all duration-150 ${targetFind === conv.other_email ? "bg-gray-200" : "bg-white"}`}>
+                                    <div className={`w-full h-[135px] flex flex-col gap-2 hover:scale-95 hover:border-white hover:border-2 bg-white hover:bg-gray-100 cursor-pointer rounded-2xl py-3 px-2 hover:-translate-y-1.5 transition-all duration-150 ${targetFind === conv.other_email ? "bg-gray-200" : "bg-white"}`}>
                                         <div className="w-full flex justify-start gap-2 items-center">
                                             <div className="w-[55px] h-[55px] flex justify-center items-center"><CircleUser size={50} strokeWidth={1.5} className="text-black" /></div>
                                             <div className="flex-1 flex flex-col items-start justify-start gap-1">
@@ -309,7 +298,6 @@ export default function ChatPage() {
                                         </div>
                                         <div className="line-clamp-1 w-full max-h-[30px] text-[18px] text-gray-400 px-2">{conv.last_sender_id === user?.user_id ? "Bạn: " : conv.other_username + ": "} {conv.last_message_content}</div>
                                     </div>
-                                    <div className="w-full h-0.5 bg-gray-500"></div>
                                 </div>
                             )}
                         </div>
@@ -323,21 +311,22 @@ export default function ChatPage() {
                 </div>
             </div>
 
-            {targetUser ? (
+            {targetUser.current ? (
                 <div className="h-full w-[1200px] rounded-2xl flex flex-col gap-0">
                     <div className="w-full h-[100px] flex flex-col gap-0 justify-center items-center">
                         <div className="w-full flex-1 flex items-center bg-white rounded-t-2xl px-6 gap-3">
                             <div className="w-[90px] h-[90px] flex justify-center items-center"><Heart size={60} strokeWidth={1.2} className="text-pink-700" /></div>
                             <div className="h-full flex-1 flex flex-col items-start gap-0 text-left">
-                                <p className="text-[40px] font-medium">{targetUser.username}</p>
-                                <p className="text-[20px] font-light">{targetUser.email}</p>
+                                <p className="text-[40px] font-medium">{targetUser.current.username}</p>
+                                <p className="text-[20px] font-light">{targetUser.current.email}</p>
                             </div>
                             {user?.role === "Counsellor" ?
                                 <div className="w-[90px] h-[90px] flex justify-center items-center hover:scale-120 transition-transform duration-100"
                                     onClick={async () => {
+                                        if (!targetUser.current) return
                                         try {
                                             setIsPopup(true)
-                                            const res = await AxiosInstance.get(`/chat/summarize/${targetUser.user_id}`)
+                                            const res = await AxiosInstance.get(`/chat/summarize/${targetUser.current.user_id}`)
                                             setRecap(res.data)
                                         }
                                         catch (e: any) {
@@ -363,7 +352,7 @@ export default function ChatPage() {
 
                     <div className="w-full h-[120px] bg-white rounded-b-2xl px-5 py-2">
                         <textarea className="w-full h-full text-[16px] rounded-2xl bg-gray-100 p-3 overflow-hidden"
-                            disabled={targetUser && targetUser.conversation_id === "" && msgList.length === 1 ? true : false}
+                            disabled={targetUser.current && targetUser.current.conversation_id === "" && msgList.length === 1 ? true : false}
                             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
                                 setMessageContent(e.target.value)
                             }}
@@ -387,23 +376,25 @@ export default function ChatPage() {
                                         }
                                         setMsgList(prev => [...prev, sent_msg])
                                         setConvList(prev => {
-                                            const index = prev.findIndex(c => c.other_user_id == targetUser.user_id);
+                                            const index = prev.findIndex(c => c.other_user_id == targetUser.current?.user_id);
                                             if (index === -1) return prev
                                             const copy = [...prev];
                                             const conv = copy.splice(index, 1)[0];
                                             conv.last_message_content = messageContent;
                                             conv.last_sender_id = user?.user_id || "";
                                             return [conv, ...copy];
+                                            
                                         })
 
-
-                                        socket.emit("client_send_message", {
-                                            recipient_id: targetUser.user_id,
-                                            recipient_role: targetUser.role,
-                                            content: messageContent,
-                                            conversation_id: targetUser.conversation_id
-                                        })
-                                        setMessageContent("")
+                                        if (targetUser.current) {
+                                            socket.emit("client_send_message", {
+                                                recipient_id: targetUser.current.user_id,
+                                                recipient_role: targetUser.current.role,
+                                                content: messageContent,
+                                                conversation_id: targetUser.current.conversation_id
+                                            })
+                                            setMessageContent("")
+                                        }
                                     }
                                     else setMessageContent((prev) => prev + "\n");
                                 }

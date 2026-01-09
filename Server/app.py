@@ -9,10 +9,11 @@ from routes.connection import connection_router
 from routes.chat import chat_router
 from routes.activity import activity_router
 from routes.mood import mood_router
+from routes.test import test_router 
 from util.token import verify_token
 from helper.summarizer import summarizer
 from helper.analyzer import estimate_research_time
-from database import UserModel, ConversationModel, MessageModel
+from database import UserModel, ConversationModel, MessageModel, DiagnosisModel
 from chatbot import agent
 import tempfile
 from langchain_community.document_loaders import PyPDFLoader
@@ -38,6 +39,7 @@ app.include_router(connection_router)
 app.include_router(chat_router)
 app.include_router(activity_router)
 app.include_router(mood_router)
+app.include_router(test_router)
 
 sio_app = socketio.ASGIApp(sio, app)
 
@@ -169,7 +171,14 @@ async def client_send_message(sid, data):
             async for event in agent.astream(inputs, {"configurable": {"thread_id": str(conversation.conversation_id), "user_id": user_id}}, stream_mode="values"):
                 if not hasDiagnosis and event.get("total_guess"):
                     hasDiagnosis = True
-                    await sio.emit("update_diagnosis", {}, to=sid)
+                    diagnosis = DiagnosisModel.objects(in_conversation_id=str(conversation.conversation_id)).order_by("-created_at").first()
+                    if not diagnosis:
+                        raise ValueError("where is diagnosis vro")
+                    await sio.emit("update_diagnosis", {
+                        "score": diagnosis.score,
+                        "content": diagnosis.content,
+                        "total_guess": diagnosis.total_guess
+                    }, to=sid)
 
                 if "messages" not in event:
                     continue  # skip state-only events
@@ -238,7 +247,14 @@ async def start_new_thread(sid, data):
     async for event in agent.astream(inputs, {"configurable": {"thread_id": str(conversation.conversation_id), "user_id": user_id}}, stream_mode="values"):
         if not hasDiagnosis and event.get("total_guess"):
             hasDiagnosis = True
-            await sio.emit("update_diagnosis", {}, to=sid)
+            diagnosis = DiagnosisModel.objects(in_conversation_id=str(conversation.conversation_id)).order_by("-created_at").first()
+            if not diagnosis:
+                raise ValueError("where is diagnosis vro")
+            await sio.emit("update_diagnosis", {
+                "score": diagnosis.score,
+                "content": diagnosis.content,
+                "total_guess": diagnosis.total_guess
+            }, to=sid)
 
         if "messages" not in event:
             continue  # skip state-only events

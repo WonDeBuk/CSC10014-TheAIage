@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter
-from database import UserModel, ConversationModel, MessageModel, SummaryModel
+from database import UserModel, ConversationModel, MessageModel, SummaryModel, DiagnosisModel
 from fastapi import Depends, HTTPException
 from util.token import auth_verifier
 from typing import Any
@@ -171,3 +171,18 @@ async def delete_threads(data: dict[str, Any], payload=Depends(auth_verifier)):
         raise HTTPException(status_code=404, detail="Thread does not exist")
     
     thread.delete()
+
+@chat_router.get("/thread/diagnosis/{thread_id}")
+async def get_diagnosis(thread_id: str ,payload=Depends(auth_verifier)):
+    if not payload:
+        raise HTTPException(status_code=401, detail="Not authorized")
+    
+    diagnosis = DiagnosisModel.objects(in_conversation_id=thread_id).order_by("-created_at").first()
+    if not diagnosis:
+        raise HTTPException(status_code=404, detail="Diagnosis does not exist")
+    
+    return {
+        "score": diagnosis.score,
+        "content": diagnosis.content,
+        "total_guess": diagnosis.total_guess
+    }

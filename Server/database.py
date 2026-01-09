@@ -1,4 +1,4 @@
-from mongoengine import connect, Document, StringField, DateTimeField, DateField, IntField, ReferenceField, ObjectIdField, BooleanField, ListField, EmbeddedDocumentField, EmbeddedDocument, CASCADE
+from mongoengine import connect, Document, StringField, DateTimeField, DateField, IntField, ReferenceField, ObjectIdField, BooleanField, ListField, DictField, EmbeddedDocumentField, EmbeddedDocument, CASCADE
 from werkzeug.security import generate_password_hash, check_password_hash
 from bson.objectid import ObjectId
 from datetime import datetime, timezone, date
@@ -26,6 +26,7 @@ class UserModel(Document):
     meta = {
         "db_alias": "AccountDB",
         "collection": "Users",
+        "strict": False,
         "indexes": [
             "email",
         ]
@@ -120,16 +121,19 @@ class MessageModel(Document):
 
 class DiagnosisModel(Document):
     diagnosis_id = ObjectIdField(primary_key=True, default=ObjectId)
+    user_id = StringField(required=True)
     in_conversation_id = ReferenceField("ConversationModel", reverse_delete_rule=CASCADE, required=True)
     score = IntField(required=True)
     content = StringField(required=True)
     total_guess = StringField(required=True)
     created_at = DateTimeField(default=lambda: datetime.now(timezone.utc))
+    tags = ListField(StringField())
     meta = {
         "db_alias": "ChatDB",
         "collection": "Diagnoses",
         "indexes": [
             "in_conversation_id",
+            "user_id",
             "-created_at"
         ]
     }
@@ -352,5 +356,22 @@ class SummaryModel(Document):
         "indexs": [
             "-created_at",
             "user_id"
+        ]
+    }
+
+class TestResultModel(Document):
+    result_id = ObjectIdField(primary_key=True, default=ObjectId)
+    user_id = ReferenceField(UserModel, required=True, reverse_delete_rule=CASCADE)
+    test_type = StringField(required=True)
+    scores = DictField() 
+    total_score = IntField()
+    created_at = DateTimeField(default=lambda: datetime.now(timezone.utc))
+    
+    meta = {
+        "db_alias": "AccountDB",
+        "collection": "TestResults",
+        "indexes": [
+            "user_id",
+            "-created_at"
         ]
     }

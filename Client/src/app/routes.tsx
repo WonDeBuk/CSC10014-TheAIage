@@ -2,7 +2,6 @@ import { createBrowserRouter } from "react-router-dom";
 
 import LandingPage from "../presentation/pages/LandingPage/LandingPage";
 import LoginPage from "../presentation/pages/LoginPage/LoginPage";
-import DashboardPage from "../presentation/pages/DashboardPage/DashboardPage";
 import CounsellorsPage from "../presentation/pages/CounsellorsPage/CounsellorsPage";
 import AboutPage from "../presentation/pages/AboutPage/AboutPage";
 import RegisterPage from "../presentation/pages/RegisterPage/RegisterPage";
@@ -16,6 +15,13 @@ import FileUpload from "@/presentation/pages/ChatBotTest/FileUpload";
 
 import RouteProtector from "@/presentation/components/RouteProtector";
 import NonUserProtector from "@/presentation/components/NonUserProtector";
+import PersonalPage from "@/presentation/pages/PersonalPage/PersonalPage";
+
+import TestPage from "@/presentation/pages/TestPage/TestSelectionPage";
+import GAD7TestPage from "@/presentation/pages/TestPage/GAD7page";
+import DASS21TestPage from "@/presentation/pages/TestPage/DASS21page";
+import MBITestPage from "@/presentation/pages/TestPage/MBIpage";
+import PHQ9TestPage from "@/presentation/pages/TestPage/PHQ9Page";
 
 export const router = createBrowserRouter([
   { path: "/", element: <LandingPage /> },
@@ -32,7 +38,12 @@ export const router = createBrowserRouter([
   {
     element: <RouteProtector />, // ← layout wrapper
     children: [
-      { path: "/dashboard", element: <DashboardPage /> },
+      { path: "/personal", element: <PersonalPage /> },
+      { path: "/test", element: <TestPage />},
+      { path: "/test/gad7", element: <GAD7TestPage /> },
+      { path: "/test/dass21", element: <DASS21TestPage /> },
+      { path: "/test/mbi", element: <MBITestPage /> },
+      { path: "/test/phq9", element: <PHQ9TestPage /> },
       { path: "/counsellors", element: <CounsellorsPage /> },
       { path: "/chat", element: <ChatPage /> },
       { path: "/chatai", element: <ChatPageAI /> },
