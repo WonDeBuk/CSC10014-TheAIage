@@ -55,7 +55,7 @@ export default function TestPHQ9() {
     questions.forEach((q) => {
       sum += scores[q.id] || 0;
     });
-    
+
     try {
       await AxiosInstance.post("/tests/save", {
         test_type: "PHQ9",
@@ -231,14 +231,47 @@ export default function TestPHQ9() {
             </div>
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Kết quả đánh giá PHQ-9</h2>
 
-            <div className="inline-block p-8 bg-white rounded-2xl border-l-8 border-purple-500 shadow-lg mb-8">
-              <div className="text-5xl font-extrabold text-purple-600 mb-2">{total}</div>
+            <div className={`inline-block p-8 bg-white rounded-2xl border-l-8 shadow-lg mb-8 ${total <= 4 ? "border-green-500" :
+                total <= 9 ? "border-yellow-500" :
+                  total <= 14 ? "border-orange-500" :
+                    total <= 19 ? "border-red-400" : "border-red-600"
+              }`}>
+              <div className={`text-5xl font-extrabold mb-2 ${total <= 4 ? "text-green-600" :
+                  total <= 9 ? "text-yellow-600" :
+                    total <= 14 ? "text-orange-600" :
+                      total <= 19 ? "text-red-500" : "text-red-700"
+                }`}>{total}</div>
               <p className="text-lg font-semibold text-gray-600">Điểm Trầm cảm</p>
             </div>
 
-            <p className="text-sm text-gray-500 mb-10 max-w-md mx-auto">
-              (0-4: Không/Ít, 5-9: Nhẹ, 10-14: Vừa, 15-19: Nặng, 20-27: Rất nặng)
-            </p>
+            <div className="max-w-xl mx-auto mb-10 text-left bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+              <h3 className="font-bold text-gray-800 mb-2 text-lg">Đánh giá chi tiết:</h3>
+              {total <= 4 && (
+                <p className="text-green-700">
+                  <span className="font-bold">Không/Ít (0-4):</span> Bạn không có dấu hiệu trầm cảm đáng kể. Hãy tiếp tục duy trì tinh thần lạc quan!
+                </p>
+              )}
+              {total >= 5 && total <= 9 && (
+                <p className="text-yellow-700">
+                  <span className="font-bold">Trầm cảm nhẹ (5-9):</span> Có dấu hiệu buồn chán nhẹ. Hãy thử tham gia các hoạt động yêu thích hoặc tập thể dục.
+                </p>
+              )}
+              {total >= 10 && total <= 14 && (
+                <p className="text-orange-700">
+                  <span className="font-bold">Trầm cảm vừa (10-14):</span> Mức độ này cần được quan tâm. Bạn nên chia sẻ với người thân hoặc cân nhắc tư vấn tâm lý.
+                </p>
+              )}
+              {total >= 15 && total <= 19 && (
+                <p className="text-red-600">
+                  <span className="font-bold">Trầm cảm nặng (15-19):</span> Các triệu chứng khá rõ rệt và ảnh hưởng đến sinh hoạt. Bạn nên sớm gặp chuyên gia để được hỗ trợ.
+                </p>
+              )}
+              {total >= 20 && (
+                <p className="text-red-800">
+                  <span className="font-bold">Trầm cảm rất nặng (20-27):</span> Đây là mức độ nghiêm trọng. Bạn cần tìm kiếm sự trợ giúp từ bác sĩ hoặc chuyên gia tâm lý ngay lập tức.
+                </p>
+              )}
+            </div>
 
             <button
               onClick={restartTest}

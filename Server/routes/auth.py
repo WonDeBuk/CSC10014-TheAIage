@@ -51,7 +51,9 @@ async def get_current_user(payload=Depends(auth_verifier)):
         "user_id": str(user.user_id),
         "username": user.username,
         "email": user.email,
-        "role": user.role
+        "role": user.role,
+        "created_at": user.created_at.isoformat() if user.created_at else None,
+        "description": user.description
     }
 
 @auth_router.get("/info/{email}")
@@ -75,3 +77,5 @@ async def get_account_info(email: str, payload=Depends(auth_verifier)):
         # "expertise": user.expertise
         "conversation_id": str(conversation.conversation_id) if conversation else ""
     }
+
+

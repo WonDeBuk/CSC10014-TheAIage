@@ -79,19 +79,19 @@ export default function TestDASS21() {
       sum[q.scale] += score;
     });
     const finalTotals = {
-        D: sum.D * 2,
-        A: sum.A * 2,
-        S: sum.S * 2,
+      D: sum.D * 2,
+      A: sum.A * 2,
+      S: sum.S * 2,
     };
 
     try {
       await AxiosInstance.post("/tests/save", {
         test_type: "DASS21",
         scores: {
-            answers: scores,
-            subscores: finalTotals
+          answers: scores,
+          subscores: finalTotals
         },
-        total_score: finalTotals.D + finalTotals.A + finalTotals.S 
+        total_score: finalTotals.D + finalTotals.A + finalTotals.S
       });
       console.log("DASS21 Result saved successfully");
     } catch (error) {
@@ -300,9 +300,42 @@ export default function TestDASS21() {
 }
 
 function ResultCard({ label, score, color, desc }: { label: string; score: number; color: string; desc: string }) {
-  const getSeverity = (s: number, type: string) => {
-    // Logic phân loại sơ bộ 
-    return s > 14 ? "Nặng" : s > 9 ? "Vừa" : s > 7 ? "Nhẹ" : "Bình thường";
+  const getSeverity = (s: number, label: string) => {
+    // DASS-21 Severity Ratings (Standard x2 score)
+    // D: Normal 0-9, Mild 10-13, Moderate 14-20, Severe 21-27, Extremely Severe 28+
+    // A: Normal 0-7, Mild 8-9, Moderate 10-14, Severe 15-19, Extremely Severe 20+
+    // S: Normal 0-14, Mild 15-18, Moderate 19-25, Severe 26-33, Extremely Severe 34+
+    if (label.includes("Trầm cảm")) {
+      if (s >= 28) return "Cực kỳ nặng";
+      if (s >= 21) return "Nặng";
+      if (s >= 14) return "Vừa";
+      if (s >= 10) return "Nhẹ";
+      return "Bình thường";
+    }
+    if (label.includes("Lo âu")) {
+      if (s >= 20) return "Cực kỳ nặng";
+      if (s >= 15) return "Nặng";
+      if (s >= 10) return "Vừa";
+      if (s >= 8) return "Nhẹ";
+      return "Bình thường";
+    }
+    if (label.includes("Căng thẳng")) {
+      if (s >= 34) return "Cực kỳ nặng";
+      if (s >= 26) return "Nặng";
+      if (s >= 19) return "Vừa";
+      if (s >= 15) return "Nhẹ";
+      return "Bình thường";
+    }
+    return "";
+  };
+
+  const severity = getSeverity(score, label);
+
+  const getSeverityColor = (sev: string) => {
+    if (sev === "Bình thường") return "text-green-600";
+    if (sev === "Nhẹ") return "text-yellow-600";
+    if (sev === "Vừa") return "text-orange-600";
+    return "text-red-600";
   };
 
   const borderColor = {
@@ -311,15 +344,10 @@ function ResultCard({ label, score, color, desc }: { label: string; score: numbe
     teal: "border-teal-500"
   }[color];
 
-  const textColor = {
-    red: "text-red-600",
-    yellow: "text-yellow-600",
-    teal: "text-teal-600"
-  }[color];
-
   return (
     <div className={`p-6 bg-white rounded-2xl border-l-8 shadow-sm ${borderColor}`}>
-      <div className={`text-4xl font-extrabold mb-2 ${textColor}`}>{score}</div>
+      <div className={`text-4xl font-extrabold mb-1 ${getSeverityColor(severity)}`}>{score}</div>
+      <div className={`text-sm font-bold uppercase mb-2 ${getSeverityColor(severity)}`}>{severity}</div>
       <h3 className="text-lg font-bold text-gray-800 mb-1">{label}</h3>
       <p className="text-xs text-gray-500">{desc}</p>
     </div>

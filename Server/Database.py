@@ -24,6 +24,7 @@ class UserModel(Document):
     meta = {
         "db_alias": "AccountDB",
         "collection": "Users",
+        "strict": False,
         "indexes": [
             "email",
         ]

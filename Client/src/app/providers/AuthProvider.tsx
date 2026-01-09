@@ -14,6 +14,8 @@ type User = {
   user_id: string;
   email: string;
   role: "Student" | "Counsellor" | "AI";
+  created_at?: string;
+  description?: string;
 };
 
 type AuthContextType = {
@@ -63,6 +65,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user_id: data.user_id,
         email: data.email,
         role: data.role,
+        created_at: data.created_at,
+        description: data.description,
       };
 
       setUser(userData);

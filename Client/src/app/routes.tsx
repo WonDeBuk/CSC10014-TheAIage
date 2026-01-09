@@ -40,7 +40,13 @@ export const router = createBrowserRouter([
   { path: "/study", element: <StudyPage /> },
   { path: "activity", element: <ActivityPage /> },
 
-  { path: "/personal", element: <PersonalPage /> },
+  {
+    path: "/personal", element: (
+      <RouteProtector>
+        <PersonalPage />
+      </RouteProtector>
+    )
+  },
 
   { path: "/test", element: <TestSelectionPage /> },
   { path: "/test/gad7", element: <GAD7page /> },

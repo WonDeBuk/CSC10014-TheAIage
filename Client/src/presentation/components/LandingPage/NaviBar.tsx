@@ -99,7 +99,7 @@ export default function NavBar({ isStatic = false }: { isStatic?: boolean }) {
               {/* If logged in: show User + Logout */}
               {user && (
                 <div className="flex items-center gap-6">
-                  <a href="/dashboard" className="flex items-center gap-2">
+                  <a href="/personal" className="flex items-center gap-2">
                     <img
                       src={userIcon}
                       alt="userIcon"
@@ -190,7 +190,7 @@ export default function NavBar({ isStatic = false }: { isStatic?: boolean }) {
               )}
 
               {user && (
-                <div className="flex flex-col items-center gap-2" onClick={() => navigate('/dashboard')}>
+                <div className="flex flex-col items-center gap-2" onClick={() => navigate('/personal')}>
                   <img
                     src={userIcon}
                     alt="userIcon"

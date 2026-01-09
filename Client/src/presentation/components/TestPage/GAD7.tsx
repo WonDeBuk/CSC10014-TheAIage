@@ -53,7 +53,7 @@ export default function TestGAD7() {
     questions.forEach((q) => {
       sum += scores[q.id] || 0;
     });
-    
+
     try {
       await AxiosInstance.post("/tests/save", {
         test_type: "GAD7",
@@ -229,14 +229,40 @@ export default function TestGAD7() {
             </div>
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Kết quả đánh giá GAD-7</h2>
 
-            <div className="inline-block p-8 bg-white rounded-2xl border-l-8 border-teal-500 shadow-lg mb-8">
-              <div className="text-5xl font-extrabold text-teal-600 mb-2">{total}</div>
+            <div className={`inline-block p-8 bg-white rounded-2xl border-l-8 shadow-lg mb-8 ${total <= 4 ? "border-green-500" :
+                total <= 9 ? "border-yellow-500" :
+                  total <= 14 ? "border-orange-500" : "border-red-500"
+              }`}>
+              <div className={`text-5xl font-extrabold mb-2 ${total <= 4 ? "text-green-600" :
+                  total <= 9 ? "text-yellow-600" :
+                    total <= 14 ? "text-orange-600" : "text-red-600"
+                }`}>{total}</div>
               <p className="text-lg font-semibold text-gray-600">Điểm Lo âu</p>
             </div>
 
-            <p className="text-sm text-gray-500 mb-10 max-w-md mx-auto">
-              (0-4: Bình thường, 5-9: Nhẹ, 10-14: Vừa, 15-21: Nặng)
-            </p>
+            <div className="max-w-xl mx-auto mb-10 text-left bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+              <h3 className="font-bold text-gray-800 mb-2 text-lg">Đánh giá chi tiết:</h3>
+              {total <= 4 && (
+                <p className="text-green-700">
+                  <span className="font-bold">Bình thường (0-4):</span> Tâm trạng của bạn ổn định. Không có dấu hiệu lo âu đáng kể. Hãy tiếp tục duy trì lối sống tích cực!
+                </p>
+              )}
+              {total >= 5 && total <= 9 && (
+                <p className="text-yellow-700">
+                  <span className="font-bold">Lo âu nhẹ (5-9):</span> Bạn có một chút lo lắng nhưng vẫn trong tầm kiểm soát. Thư giãn, tập thể dục hoặc thiền có thể giúp ích.
+                </p>
+              )}
+              {total >= 10 && total <= 14 && (
+                <p className="text-orange-700">
+                  <span className="font-bold">Lo âu vừa (10-14):</span> Mức độ lo lắng này đáng lưu tâm. Bạn nên chia sẻ với bạn bè, người thân hoặc tìm kiếm các biện pháp giảm căng thẳng.
+                </p>
+              )}
+              {total >= 15 && (
+                <p className="text-red-700">
+                  <span className="font-bold">Lo âu nặng (15-21):</span> Mức độ lo âu cao có thể ảnh hưởng đến cuộc sống. Bạn nên cân nhắc gặp chuyên gia tâm lý để được hỗ trợ tốt nhất.
+                </p>
+              )}
+            </div>
 
             <button
               onClick={restartTest}

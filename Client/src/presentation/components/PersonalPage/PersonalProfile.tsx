@@ -2,6 +2,9 @@ import { useAuth } from "@/app/providers/AuthProvider";
 import { useNavigate } from "react-router-dom";
 import { Mail, Calendar, LogOut, User, ShieldCheck, Lock, ChevronRight } from "lucide-react";
 
+import StudentTestHistory from "./StudentTestHistory";
+
+
 export default function PersonalProfile() {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
@@ -15,15 +18,7 @@ export default function PersonalProfile() {
         <div className="min-h-screen bg-white flex flex-col font-sans">
 
             <div className="w-full h-72 md:h-96 bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 relative">
-                <div className="absolute top-6 right-6 hidden md:block">
-                    <button
-                        onClick={handleLogout}
-                        className="flex items-center px-6 py-2 bg-white/20 backdrop-blur-md border border-white/30 text-white rounded-full hover:bg-white/30 transition font-medium"
-                    >
-                        <LogOut className="w-4 h-4 mr-2" />
-                        Đăng xuất
-                    </button>
-                </div>
+
             </div>
 
             <div className="w-full max-w-screen-2xl mx-auto px-4 sm:px-8 pb-20">
@@ -52,7 +47,7 @@ export default function PersonalProfile() {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-12">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-12">
 
                         {/* Card 1 */}
                         <div className="bg-gray-50 p-10 rounded-[40px] border border-gray-100 hover:border-blue-200 hover:bg-blue-50/30 transition-colors duration-300 group">
@@ -63,25 +58,14 @@ export default function PersonalProfile() {
                                 <span className="px-3 py-1 bg-white rounded-full text-xs font-bold text-gray-400 uppercase tracking-wider">Info</span>
                             </div>
                             <h3 className="text-gray-500 text-lg font-medium mb-1">Ngày tham gia</h3>
-                            <p className="text-4xl font-bold text-gray-900">01/01/2026</p>
+                            <p className="text-4xl font-bold text-gray-900">
+                                {user?.created_at
+                                    ? new Date(user.created_at).toLocaleDateString('vi-VN')
+                                    : new Date().toLocaleDateString('vi-VN')}
+                            </p>
                         </div>
 
-                        {/* Card 2 */}
-                        <div className="bg-gray-50 p-10 rounded-[40px] border border-gray-100 hover:border-green-200 hover:bg-green-50/30 transition-colors duration-300 group">
-                            <div className="flex justify-between items-start mb-6">
-                                <div className="p-4 bg-white rounded-2xl text-green-600">
-                                    <ShieldCheck className="w-8 h-8" />
-                                </div>
-                                <span className="px-3 py-1 bg-white rounded-full text-xs font-bold text-gray-400 uppercase tracking-wider">Status</span>
-                            </div>
-                            <h3 className="text-gray-500 text-lg font-medium mb-1">Trạng thái</h3>
-                            <div className="flex items-center gap-3">
-                                <span className="w-3 h-3 bg-green-500 rounded-full"></span>
-                                <p className="text-4xl font-bold text-gray-900">Hoạt động</p>
-                            </div>
-                        </div>
-
-                        {/* Card 3 */}
+                        {/* Card 2: Vai trò */}
                         <div className="bg-gray-50 p-10 rounded-[40px] border border-gray-100 hover:border-purple-200 hover:bg-purple-50/30 transition-colors duration-300 group">
                             <div className="flex justify-between items-start mb-6">
                                 <div className="p-4 bg-white rounded-2xl text-purple-600">
@@ -92,30 +76,33 @@ export default function PersonalProfile() {
                             <h3 className="text-gray-500 text-lg font-medium mb-1">Vai trò</h3>
                             <p className="text-4xl font-bold text-gray-900">
                                 {user?.role === "Student" ? "Học sinh" :
-                                    user?.role === "Counsellor" ? "Tư vấn viên" : "Thành viên"}
+                                    user?.role === "Counsellor" ? "Tư vấn viên" :
+                                        user?.role === "AI" ? "AI Assistant" : "Thành viên"}
                             </p>
                         </div>
                     </div>
 
-                    <div className="mt-8">
-                        <button className="w-full md:w-auto px-12 py-6 flex items-center justify-between bg-gray-900 text-white rounded-[32px] hover:bg-black transition-colors duration-300 group">
-                            <div className="flex items-center">
-                                <div className="p-3 bg-white/10 rounded-full mr-5">
-                                    <Lock className="w-6 h-6" />
-                                </div>
-                                <div className="text-left">
-                                    <p className="font-bold text-lg">Đổi mật khẩu</p>
-                                    <p className="text-sm text-gray-400 font-normal">Tăng cường bảo mật cho tài khoản</p>
-                                </div>
-                            </div>
-                            <ChevronRight className="w-6 h-6 text-gray-500 group-hover:text-white transition-colors ml-8" />
-                        </button>
-                    </div>
+                    {user?.description && (
+                        <div className="mb-12 p-8 bg-gray-50 rounded-[40px] border border-gray-100">
+                            <h3 className="text-2xl font-bold text-gray-800 mb-4">Giới thiệu</h3>
+                            <p className="text-gray-600 text-lg leading-relaxed">
+                                {user.description}
+                            </p>
+                        </div>
+                    )}
 
-                    <div className="md:hidden mt-12 border-t border-gray-100 pt-8">
+                    {/* Only show Test History for Students/others, NOT for Counsellors */}
+                    {user?.role !== "Counsellor" && (
+                        <div className="mb-12">
+                            <StudentTestHistory />
+                        </div>
+                    )}
+
+
+                    <div className="mt-12 border-t border-gray-100 pt-8">
                         <button
                             onClick={handleLogout}
-                            className="w-full py-4 flex items-center justify-center text-red-500 font-bold text-lg hover:bg-red-50 rounded-2xl transition"
+                            className="w-full py-4 flex items-center justify-center bg-red-50 text-red-600 font-bold text-lg hover:bg-red-100 rounded-[32px] transition duration-300"
                         >
                             <LogOut className="w-6 h-6 mr-2" />
                             Đăng xuất

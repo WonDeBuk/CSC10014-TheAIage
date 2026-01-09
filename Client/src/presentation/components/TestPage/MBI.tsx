@@ -63,7 +63,7 @@ export default function TestMBI() {
     questions.forEach((q) => {
       sum[q.scale] += scores[q.id] || 0;
     });
-    
+
     // Calculate total simply as sum of components for quick reference, 
     // though MBI is usually interpreted by components.
     // Note: PA is reverse scored in some interpretations, but here we just sum raw values.
@@ -73,8 +73,8 @@ export default function TestMBI() {
       await AxiosInstance.post("/tests/save", {
         test_type: "MBI",
         scores: {
-            answers: scores,
-            subscores: sum
+          answers: scores,
+          subscores: sum
         },
         total_score: totalScore
       });
@@ -242,21 +242,32 @@ export default function TestMBI() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
               <div className="p-6 bg-white rounded-2xl border-l-8 border-red-500 shadow-sm">
-                <div className="text-4xl font-extrabold text-red-600 mb-2">{totals.EE}</div>
+                <div className={`text-4xl font-extrabold mb-2 ${totals.EE >= 27 ? 'text-red-600' : totals.EE >= 17 ? 'text-orange-500' : 'text-green-600'}`}>{totals.EE}</div>
                 <p className="text-sm font-bold text-gray-600">Kiệt sức (EE)</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  {totals.EE >= 27 ? "Cao (Nguy cơ cao)" : totals.EE >= 17 ? "Trung bình" : "Thấp (Tốt)"}
+                </p>
               </div>
               <div className="p-6 bg-white rounded-2xl border-l-8 border-orange-500 shadow-sm">
-                <div className="text-4xl font-extrabold text-orange-600 mb-2">{totals.DP}</div>
+                <div className={`text-4xl font-extrabold mb-2 ${totals.DP >= 13 ? 'text-red-600' : totals.DP >= 7 ? 'text-orange-500' : 'text-green-600'}`}>{totals.DP}</div>
                 <p className="text-sm font-bold text-gray-600">Thờ ơ (DP)</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  {totals.DP >= 13 ? "Cao (Nguy cơ cao)" : totals.DP >= 7 ? "Trung bình" : "Thấp (Tốt)"}
+                </p>
               </div>
               <div className="p-6 bg-white rounded-2xl border-l-8 border-blue-500 shadow-sm">
-                <div className="text-4xl font-extrabold text-blue-600 mb-2">{totals.PA}</div>
+                <div className={`text-4xl font-extrabold mb-2 ${totals.PA <= 31 ? 'text-red-600' : totals.PA <= 38 ? 'text-orange-500' : 'text-green-600'}`}>{totals.PA}</div>
                 <p className="text-sm font-bold text-gray-600">Thành tựu (PA)</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  {totals.PA <= 31 ? "Thấp (Nguy cơ cao)" : totals.PA <= 38 ? "Trung bình" : "Cao (Tốt)"}
+                </p>
               </div>
             </div>
 
             <p className="mb-10 text-xs text-gray-500 italic text-center max-w-lg mx-auto">
-              *Lưu ý: Điểm Kiệt sức (EE) và Thờ ơ (DP) càng cao càng xấu. Điểm Thành tựu (PA) càng thấp càng xấu.
+              *Lưu ý: <br />
+              - <b>Kiệt sức (EE)</b> và <b>Thờ ơ (DP)</b>: Điểm càng CAO càng đáng lo ngại.<br />
+              - <b>Thành tựu (PA)</b>: Điểm càng THẤP càng đáng lo ngại.
             </p>
 
             <button
