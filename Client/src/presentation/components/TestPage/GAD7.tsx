@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, CheckCircle, RefreshCcw } from "lucide-react";
 import "@/presentation/styles/landing.css";
+import AxiosInstance from "@/util/AxiosInstance";
 
 type QuestionScale = "ANX";
 
@@ -47,12 +48,31 @@ export default function TestGAD7() {
     setTotal(sum);
   }, [scores, questions]);
 
+  const saveResult = async () => {
+    let sum = 0;
+    questions.forEach((q) => {
+      sum += scores[q.id] || 0;
+    });
+    
+    try {
+      await AxiosInstance.post("/tests/save", {
+        test_type: "GAD7",
+        scores: scores,
+        total_score: sum
+      });
+      console.log("Result saved successfully");
+    } catch (error) {
+      console.error("Failed to save result", error);
+    }
+  };
+
   const handleNext = () => {
     if (currentQIndex < questions.length - 1) {
       setDirection(1);
       setCurrentQIndex((prev) => prev + 1);
     } else {
       setIsFinished(true);
+      saveResult();
     }
   };
 

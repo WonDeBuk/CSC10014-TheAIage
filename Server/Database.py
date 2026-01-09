@@ -1,4 +1,4 @@
-from mongoengine import connect, Document, StringField, DateTimeField, DateField, IntField, ReferenceField, ObjectIdField, BooleanField, ListField, EmbeddedDocumentField, EmbeddedDocument, CASCADE
+from mongoengine import connect, Document, StringField, DateTimeField, DateField, IntField, ReferenceField, ObjectIdField, BooleanField, ListField, EmbeddedDocumentField, EmbeddedDocument, CASCADE, DictField
 from werkzeug.security import generate_password_hash, check_password_hash
 from bson.objectid import ObjectId
 from datetime import datetime, timezone, date
@@ -195,5 +195,22 @@ class TaskModel(Document):
         "collection": "Tasks",
         "indexes": [
             "-time_start"
+        ]
+    }
+
+class TestResultModel(Document):
+    result_id = ObjectIdField(primary_key=True, default=ObjectId)
+    user_id = ReferenceField(UserModel, required=True, reverse_delete_rule=CASCADE)
+    test_type = StringField(required=True)
+    scores = DictField() 
+    total_score = IntField()
+    created_at = DateTimeField(default=lambda: datetime.now(timezone.utc))
+    
+    meta = {
+        "db_alias": "AccountDB",
+        "collection": "TestResults",
+        "indexes": [
+            "user_id",
+            "-created_at"
         ]
     }

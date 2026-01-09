@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, CheckCircle, RefreshCcw } from "lucide-react";
 import "@/presentation/styles/landing.css";
+import AxiosInstance from "@/util/AxiosInstance";
 
 // TypeScript Types
 type QuestionScale = "D" | "A" | "S";
@@ -70,12 +71,41 @@ export default function TestDASS21() {
     });
   }, [scores, questions]);
 
+  const saveResult = async () => {
+    // Recalculate explicitly to be safe
+    const sum = { D: 0, A: 0, S: 0 };
+    questions.forEach((q) => {
+      const score = scores[q.id] || 0;
+      sum[q.scale] += score;
+    });
+    const finalTotals = {
+        D: sum.D * 2,
+        A: sum.A * 2,
+        S: sum.S * 2,
+    };
+
+    try {
+      await AxiosInstance.post("/tests/save", {
+        test_type: "DASS21",
+        scores: {
+            answers: scores,
+            subscores: finalTotals
+        },
+        total_score: finalTotals.D + finalTotals.A + finalTotals.S 
+      });
+      console.log("DASS21 Result saved successfully");
+    } catch (error) {
+      console.error("Failed to save DASS21 result", error);
+    }
+  };
+
   const handleNext = () => {
     if (currentQIndex < questions.length - 1) {
       setDirection(1);
       setCurrentQIndex((prev) => prev + 1);
     } else {
       setIsFinished(true);
+      saveResult();
     }
   };
 

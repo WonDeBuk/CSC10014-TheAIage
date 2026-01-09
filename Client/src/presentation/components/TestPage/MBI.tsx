@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, CheckCircle, RefreshCcw } from "lucide-react";
 import "@/presentation/styles/landing.css";
+import AxiosInstance from "@/util/AxiosInstance";
 
 // EE: Emotional Exhaustion (Kiệt sức cảm xúc)
 // DP: Depersonalization (Phi cá nhân hóa / Thờ ơ)
@@ -57,12 +58,39 @@ export default function TestMBI() {
     setTotals(sum);
   }, [scores, questions]);
 
+  const saveResult = async () => {
+    const sum = { EE: 0, DP: 0, PA: 0 };
+    questions.forEach((q) => {
+      sum[q.scale] += scores[q.id] || 0;
+    });
+    
+    // Calculate total simply as sum of components for quick reference, 
+    // though MBI is usually interpreted by components.
+    // Note: PA is reverse scored in some interpretations, but here we just sum raw values.
+    const totalScore = sum.EE + sum.DP + sum.PA;
+
+    try {
+      await AxiosInstance.post("/tests/save", {
+        test_type: "MBI",
+        scores: {
+            answers: scores,
+            subscores: sum
+        },
+        total_score: totalScore
+      });
+      console.log("MBI Result saved successfully");
+    } catch (error) {
+      console.error("Failed to save MBI result", error);
+    }
+  };
+
   const handleNext = () => {
     if (currentQIndex < questions.length - 1) {
       setDirection(1);
       setCurrentQIndex((prev) => prev + 1);
     } else {
       setIsFinished(true);
+      saveResult();
     }
   };
 
