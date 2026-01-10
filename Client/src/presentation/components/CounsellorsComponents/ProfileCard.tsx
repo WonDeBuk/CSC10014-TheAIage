@@ -44,7 +44,8 @@ export default function ProfileCard({user_id, username, email, description, expe
         className="group select-none cursor:pointer w-[350px] h-[520px] bg-white text-black flex flex-col items-center p-4 rounded-2xl shadow-[0_2px_6px_rgba(0,0,0,0.15)] outline-2 hover:outline-8 outline-(--flavor) transition-all duration-200 hover:translate-y-[-5px] hover:shadow-2xl relative"
         onClick={() => setClick((prev) => (!prev))}>
             <div className={`w-full h-full absolute left-0 top-1/2 -translate-y-1/2 flex flex-col gap-5 items-center justify-center rounded-2xl bg-(--flavor)/20 group-hover:visible text-white *:rounded-lg *:text-[30px] *:font-[425] *:gap-3 ${click ? "visible *:opacity-100" : "invisible"}`}>
-                <div className="w-[250px] h-[60px] bg-(--flavor) flex justify-center items-center transition-all duration-125 hover:bg-white hover:border-(--flavor) hover:border-2 hover:text-(--flavor) transition-[width] hover:w-[300px] opacity-0 group-hover:opacity-100"><SquareUserRound size={23} strokeWidth={1.3} /><p>PROFILE</p></div>
+                <div className="w-[250px] h-[60px] bg-(--flavor) flex justify-center items-center transition-all duration-125 hover:bg-white hover:border-(--flavor) hover:border-2 hover:text-(--flavor) transition-[width] hover:w-[300px] opacity-0 group-hover:opacity-100"
+                onClick={() => {navigate(`/personal/?user=${email}`)}}><SquareUserRound size={23} strokeWidth={1.3} /><p>PROFILE</p></div>
                 <div className={`w-[250px] h-[60px] flex justify-center items-center transition-all duration-125 transition-[width] hover:w-[300px] ${chattable ? "bg-(--flavor) hover:bg-white hover:border-(--flavor) hover:border-2 hover:text-(--flavor)" : "pointer-events-none"} opacity-0 group-hover:opacity-100`}
                 onClick={()=>{navigate(`/chat/?chat=${email}`)}}>{chattable ? <><MessageCircle size={23} strokeWidth={1.3} /><p>CHAT</p></> : <></>}</div>
             </div>

@@ -197,7 +197,8 @@ export default function ChatPageAI() {
         <div className={`hero-bg h-full w-full fixed flex items-center gap-7 p-5`}>
 
             <div className="bg-black/20 h-full w-[120px] rounded-2xl flex flex-col items-center justify-between gap-10 p-8">
-                <div className="bg-blue-50 h-20 w-20 rounded-full"></div>
+                <div className="bg-blue-50/0 h-20 w-20 rounded-full flex justify-center items-center hover:scale-105 hover:bg-black text-white transition-all outline-2 outline-white hover:outline-black duration-150 text-[25px] font-medium"
+                onClick={() => navigate("/personal")}><p>YOU</p></div>
 
                 <div className="w-full flex-1 rounded-2xl">
                     <div className="w-full h-auto flex flex-col items-center gap-5 *:flex *:justify-center *:items-center *:text-white">

@@ -37,6 +37,9 @@ const CounsellorsPage = () => {
   const [userTags, setUserTags] = useState<string[]>([]) 
   const [isFilter, setIsFilter] = useState(false)
 
+  const [hasTags, setHasTags] = useState(false)
+  const [hasCouns, setHasCouns] = useState(false)
+
   const mentalDisorders = [ 
     "Anxiety",
     "Bipolar",
@@ -66,6 +69,7 @@ const CounsellorsPage = () => {
 
     useEffect(() => {
     const fetchCounsellors = async () => {
+      setHasCouns(false)
       try {
         const list = await AxiosInstance.get("/connection/counsellor")
         setCounsList(list.data)
@@ -74,9 +78,11 @@ const CounsellorsPage = () => {
       catch (e: any) {
         console.log(e)
       }
+      setHasCouns(true)
     }
 
     const fetchUserTags = async () => {
+      setHasTags(false)
       try {
         const tags = await AxiosInstance.get("/auth/tags/me")
         console.log(tags.data)
@@ -85,6 +91,7 @@ const CounsellorsPage = () => {
       catch (e: any) {
         console.log(e)
       }
+      setHasTags(true)
     }
 
     fetchUserTags()
@@ -114,12 +121,14 @@ const CounsellorsPage = () => {
     }
   }, [userTags])
 
-  return (
-    <div className="w-full min-h-full flex gap-20 justify-between flex-col pt-40 overflow-y-auto overflow-x-hidden hero-bg select-none">
-      <NavBar></NavBar>
-      <div className="w-full flex justify-center items-center text-[60px] font-[720] italic p-5"><p>CÁC CHUYÊN GIA TƯ VẤN TRÊN NỀN TẢNG</p></div>
+  if (!hasTags || !hasCouns) return (<div className="w-full h-full flex justify-center items-center hero-bg"><NavBar/><p>LOADING</p></div>)
 
-      <div className="w-full flex flex-col justify-center items-center gap-10">
+  return (
+    <div className="w-full min-h-full flex gap-5 justify-between flex-col pt-40 overflow-y-auto overflow-x-hidden hero-bg select-none">
+      <NavBar></NavBar>
+      <div className="w-full flex justify-center items-center text-[60px] font-[720] italic"><p>CÁC CHUYÊN GIA TƯ VẤN TRÊN NỀN TẢNG</p></div>
+
+      <div className="w-full flex flex-col justify-center items-center gap-10 mb-20">
         <div>
         <div className="w-full h-fit p-3 flex items-center justify-center gap-2">
           <Search className="text-white" size={42}></Search>
@@ -171,8 +180,10 @@ const CounsellorsPage = () => {
         </div>
       </div>
 
-      <div className={`w-full flex flex-col gap-3 items-center justify-center ${userTags.length ? "visible" : "invisible"}`}>
-        <div className="w-[500px] rounded-lg flex items-center justify-center text-[35px] font-[520] text-yellow-500"><Sparkle size={32}/><p className="p-3 rounded-md text-center">PHÙ HỢP VỚI BẠN</p><Sparkle size={32}/></div>
+      <div className="w-full h-0.5 flex justify-center"><div className="w-[900px] h-full bg-white"></div></div>
+
+      <div className={`w-full flex flex-col gap-3 items-center justify-center mb-20 ${userTags.length ? "visible" : "invisible"}`}>
+        <div className="w-[500px] rounded-lg flex items-center justify-center text-[35px] font-[350] text-black"><Sparkle size={32} strokeWidth={1.2}/><p className="p-3 rounded-md text-center">PHÙ HỢP VỚI BẠN</p><Sparkle size={32} strokeWidth={1.2}/></div>
         <div className="w-full max-w-[1200px] mx-auto grid grid-cols-3 grid-rows-1 justify-items-center gap-6 px-6">
           {recommendList.map((c, _) => 
             <ProfileCard {...c} chattable={user?.role === "Student"}/>

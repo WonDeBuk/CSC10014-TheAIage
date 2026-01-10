@@ -242,7 +242,8 @@ export default function ChatPage() {
                 </div>
             </> : <></>}
             <div className="bg-black/20 h-full w-[120px] rounded-2xl flex flex-col items-center justify-between gap-10 p-8">
-                <div className="bg-blue-50 h-20 w-20 rounded-full"></div>
+                <div className="bg-blue-50/0 h-20 w-20 rounded-full flex justify-center items-center hover:scale-105 hover:bg-black text-white transition-all outline-2 outline-white hover:outline-black duration-150 text-[25px] font-medium"
+                onClick={() => navigate("/personal")}><p>YOU</p></div>
 
                 <div className="w-full flex-1 rounded-2xl">
                     <div className="w-full h-auto flex flex-col items-center gap-5 *:flex *:justify-center *:items-center *:text-white">
@@ -280,7 +281,7 @@ export default function ChatPage() {
 
                 <div className="w-full h-[790px] rounded-md">
                     {filteredConvList.length ? (
-                        <div className="flex flex-col gap-2 items-center h-full overflow-y-scroll overflow-x-hidden">
+                        <div className="flex flex-col gap-1 items-center h-full overflow-y-scroll overflow-x-hidden">
                             {filteredConvList.map((conv, index) =>
                                 <div className="w-full flex flex-col justify-start items-center gap-2 rounded-md py-2"
                                     onClick={() => {
@@ -288,9 +289,9 @@ export default function ChatPage() {
                                     }}
                                     key={index}>
 
-                                    <div className={`w-full h-[135px] flex flex-col gap-2 hover:scale-95 hover:border-white hover:border-2 bg-white hover:bg-gray-100 cursor-pointer rounded-2xl py-3 px-2 hover:-translate-y-1.5 transition-all duration-150 ${targetFind === conv.other_email ? "bg-gray-200" : "bg-white"}`}>
+                                    <div className={`w-full h-[120px] flex flex-col gap-2 hover:scale-95 hover:border-white hover:border-2 hover:bg-gray-100 cursor-pointer rounded-2xl py-3 px-2 transition-all duration-150 bg-white ${targetFind === conv.other_email ? "opacity-40 scale-95 outline-2 outline-black" : ""}`}>
                                         <div className="w-full flex justify-start gap-2 items-center">
-                                            <div className="w-[55px] h-[55px] flex justify-center items-center"><CircleUser size={50} strokeWidth={1.5} className="text-black" /></div>
+                                            <div className="w-[55px] h-[55px] flex justify-center items-center bg-gray-200 font-[520] text-[24px] rounded-full"><p>{conv.other_username.charAt(0)}</p></div>
                                             <div className="flex-1 flex flex-col items-start justify-start gap-1">
                                                 <p className="text-left text-[30px] text-black h-[35px]">{conv.other_username}</p>
                                                 <p className="text-left text-[15px] text-gray-600 h-5">{conv.other_email}</p>
@@ -315,7 +316,8 @@ export default function ChatPage() {
                 <div className="h-full w-[1200px] rounded-2xl flex flex-col gap-0">
                     <div className="w-full h-[100px] flex flex-col gap-0 justify-center items-center">
                         <div className="w-full flex-1 flex items-center bg-white rounded-t-2xl px-6 gap-3">
-                            <div className="w-[90px] h-[90px] flex justify-center items-center"><Heart size={60} strokeWidth={1.2} className="text-pink-700" /></div>
+                            <div className="w-20 h-20 flex justify-center items-center rounded-full bg-gray-200 font-[560] text-[35px] text-gray-500 hover:bg-black hover:text-white hover:scale-105 transition-all duration-150"
+                            onClick={() => navigate(`/personal/?user=${targetUser.current?.email}`)}><p>{targetUser.current.username.charAt(0)}</p></div>
                             <div className="h-full flex-1 flex flex-col items-start gap-0 text-left">
                                 <p className="text-[40px] font-medium">{targetUser.current.username}</p>
                                 <p className="text-[20px] font-light">{targetUser.current.email}</p>

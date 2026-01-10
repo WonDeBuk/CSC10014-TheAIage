@@ -82,8 +82,8 @@ async def get_account_info(email: str, payload=Depends(auth_verifier)):
         "username": user.username,
         "email": user.email,
         "role": user.role,
-        # "description": user.description,
-        # "expertise": user.expertise
+        "description": user.description,
+        "expertise": user.expertise,
         "conversation_id": str(conversation.conversation_id) if conversation else ""
     }
 

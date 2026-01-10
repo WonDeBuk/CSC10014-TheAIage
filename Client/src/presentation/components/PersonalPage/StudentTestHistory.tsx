@@ -82,7 +82,7 @@ export default function StudentTestHistory({ userId }: { userId?: string }) {
                     <Clock className="w-8 h-8 text-gray-400" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-800 mb-2">Chưa có lịch sử</h3>
-                <p className="text-gray-500">Bạn chưa thực hiện bài kiểm tra nào.</p>
+                <p className="text-gray-500">Chưa thực hiện bài kiểm tra nào.</p>
             </div>
         );
     }
